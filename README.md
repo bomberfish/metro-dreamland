@@ -5,7 +5,60 @@ a stylesheet, a set of components, and the motion (turnstiles, feathering,
 continuum, pivots, panoramas, tilt, live tiles, Windows 10's reveal).
 
 It started as part of [bomberfish.ca](https://bomberfish.ca), which vendors
-it as a git submodule.
+it as a git submodule. Everything it has is shown off, and can be tried, in
+[metro-dreamland-showcase](https://github.com/bomberfish/metro-dreamland-showcase).
+
+## What's in it
+
+| | | On a phone | On a tablet or desktop |
+|---|---|---|---|
+| **Pages** | `Page`, `PageHeader`, `Pivot`, `Panorama`, `Link` | Windows Phone 8 | Windows 8; the pivot's headers as WinJS's Pivot had them |
+| **Tiles** | `Tiles`, `Tile` (flip, cycle), faces, slides, labels, counts | Windows Phone 8 | Windows 8 |
+| **Buttons** | `Button`, `RingButton` | Windows Phone 8 | Windows 8 |
+| **Forms** | `CheckBox`, `RadioButton`, `Toggle`, `TextBox` | Windows Phone 8 and its toolkit | Windows 8 |
+| **Pickers** | `ListPicker`, `DatePicker`, `TimePicker` | the Windows Phone Toolkit | Windows 8's ComboBox; Windows 8.1's DatePicker and TimePicker |
+| **Menus and dialogs** | `ContextMenu`, `showMessageBox()`, `AppBar`, `showToast()`, tooltips (`data-m-tip`) | the toolkit; Windows Phone 8 and 8.1 | Windows 8.1's MenuFlyout and AppBar; Windows 8 |
+| **Sliders and loaders** | `Slider`, `ProgressBar`, `ProgressRing` | Windows 8 | Windows 8 |
+| **Themes** | dark and light (`data-m-theme`), twenty accents | Windows Phone 8's | Windows 8's |
+| **Materials** | flat, or Windows 10's acrylic (`setMaterial`) | WinUI's AcrylicBrush | WinUI's AcrylicBrush |
+
+Every measure, colour and timing comes from Microsoft's own sources where
+there is one: the Windows Phone 8 SDK's theme resources and default control
+templates, the [Windows Phone Toolkit](https://github.com/microsoftarchive/WindowsPhoneToolkit)'s
+templates and code (MS-PL), the Windows 8.1 "styles and templates" pages
+on Microsoft Learn, and [WinJS](https://github.com/winjs/winjs) (MIT) for
+the pivot on a desktop. The phone's app bar, which its shell drew itself,
+follows [Cornflower](https://github.com/wdcossey/Cornflower)'s frame-by-frame
+measurements of a Windows Phone 8.1 device. Each component's file says which
+it follows.
+
+### The form factor
+
+The controls are the phone's on a phone and Windows 8's everywhere else. That's
+`data-m-form-factor="phone"` or `"desktop"` on `<html>`, which `startMetro()`
+sets from the window (narrow, or short and touched) and keeps up as it
+changes, unless one's been forced:
+
+```ts
+import { setFormFactor } from "metro-dreamland";
+
+setFormFactor("phone"); // or "desktop", or "auto"; remembered on the device
+```
+
+For a page from the server, set it before the first paint too, in the
+`<head>`, so a phone doesn't start with the desktop's controls:
+
+```html
+<script>
+	(function (d) {
+		var f = null;
+		try { f = localStorage.getItem("m-form-factor"); } catch (e) {}
+		if (f !== "phone" && f !== "desktop")
+			f = matchMedia("(max-width: 37.49rem), (max-height: 29.99rem) and (pointer: coarse)").matches ? "phone" : "desktop";
+		d.setAttribute("data-m-form-factor", f);
+	})(document.documentElement);
+</script>
+```
 
 ## Status
 
@@ -35,6 +88,12 @@ The stylesheet, before the app's own (which then has the last word):
 
 ```css
 @import "metro-dreamland/metro.css";
+/* and, for an app with no colours or type of its own, the phone's: */
+@import "metro-dreamland/theme.css";
+```
+
+```html
+<html data-m-theme="dark" data-m-accent="cobalt">
 ```
 
 The motion, started before the app hydrates and told when it has:
@@ -57,11 +116,16 @@ same attributes. The full list of both is at the top of `src/index.ts`.
 
 ### What the app provides
 
-The library has no colours or type of its own. It expects these custom
-properties on `:root`: the accent, the surfaces, the type colours and the
-type faces. The list is at the top of `src/metro.css`. It defines Windows
-Phone 8's twenty accent colours (`--m-lime` … `--m-taupe`) and the materials
-itself.
+The pages and tiles take an app's own colours and type: custom properties on
+`:root` for the accent, the surfaces, the type colours and the faces (the
+list is at the top of `src/metro.css`). `theme.css` sets all of them from
+the phone's theme, for an app that hasn't its own. The controls are drawn in
+the phone's theme itself (dark, or light with `data-m-theme="light"`) and
+the accent.
+
+Icons are the app's: the app bar, round buttons and toasts take an icon
+font's ligature or codepoint. bomberfish.ca's "Metro Symbols" (Segoe UI
+Symbol's app bar glyphs, by name) is what the showcase uses.
 
 ### Before the first paint (optional)
 

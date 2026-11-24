@@ -4,13 +4,29 @@
 //
 //   metro.css     the look: tiles (flat, or Windows 10's acrylic: see
 //                 setMaterial), the pivot and panorama layouts, buttons,
-//                 sliders, switches, loaders, scrollbars. Import it
-//                 before the app's own styles (which then have the last
-//                 word): @import "metro-dreamland/metro.css".
-//   components/   the markup, as dreamland components: <Page>, <Link>,
-//                 <Tile> and its parts, <Pivot>, <Panorama>, <Button>,
-//                 <RingButton>, <Slider>, <Toggle>, <ProgressBar>,
-//                 <ProgressRing>.
+//                 sliders, switches, loaders, scrollbars, and (it imports
+//                 controls.css) the controls below; the phone's two themes
+//                 (data-m-theme="dark|light"). Import it before the app's
+//                 own styles (which then have the last word):
+//                 @import "metro-dreamland/metro.css". theme.css, after
+//                 it, is the rest of an app's colours and type, from the
+//                 phone's theme, for an app that hasn't its own.
+//   components/   the markup, as dreamland components:
+//                   pages      <Page>, <Link>, <Pivot>, <PageHeader>,
+//                              <Panorama> and its parts
+//                   tiles      <Tiles>, <Tile> and its parts
+//                   controls   <Button>, <RingButton>, <CheckBox>,
+//                              <RadioButton>, <Toggle>, <Slider>,
+//                              <TextBox>, <ProgressBar>, <ProgressRing>
+//                   pickers    <ListPicker>, <DatePicker>, <TimePicker>
+//                              (and pickDate(), pickTime())
+//                   menus      <ContextMenu> (attachContextMenu(),
+//                              showContextMenu()), <AppBar>,
+//                              showMessageBox(), showToast(), and
+//                              tooltips (data-m-tip)
+//                 Each says where its look comes from: Windows Phone 8's
+//                 own templates and theme resources, the Windows Phone
+//                 Toolkit's, or Windows 8's.
 //   motion/       how it all moves (below). Started with startMetro()
 //                 before the app hydrates and metroReady() after:
 //
@@ -80,6 +96,14 @@ export { marquee, swapText, swivelIn, swivelOut } from "./motion/text";
 export { type KeepOptions, type Kept, keep } from "./motion/continuum";
 export { startReveal } from "./motion/reveal";
 export { type Material, material, setMaterial } from "./motion/material";
+export {
+	type FormFactor,
+	type FormFactorChoice,
+	formFactor,
+	formFactorChoice,
+	setFormFactor,
+} from "./motion/formfactor";
+export { isPhone, PHONE_QUERY } from "./motion/core";
 
 export { Link } from "./components/Link";
 export { Page } from "./components/Page";
@@ -109,3 +133,40 @@ export {
 	ProgressRing,
 	runProgressBar,
 } from "./components/Progress";
+
+export {
+	CheckBox,
+	RadioButton,
+	settleCheckBoxes,
+} from "./components/CheckBox";
+export { TextBox } from "./components/TextBox";
+export {
+	ListPicker,
+	placeListPicker,
+	type ListPickerItem,
+} from "./components/ListPicker";
+export {
+	DatePicker,
+	TimePicker,
+	pickDate,
+	pickTime,
+} from "./components/DateTimePicker";
+export {
+	ContextMenu,
+	attachContextMenu,
+	showContextMenu,
+	type MenuEntry,
+} from "./components/ContextMenu";
+export {
+	showMessageBox,
+	type MessageBoxOptions,
+} from "./components/MessageBox";
+export {
+	AppBar,
+	type AppBarButton,
+	type AppBarMenuItem,
+} from "./components/AppBar";
+export { showToast, type ToastOptions } from "./components/Toast";
+export { startToolTips } from "./components/ToolTip";
+export { openLayer, type Layer, type LayerOptions } from "./components/layer";
+export { exponential, type EaseMode } from "./motion/ease";

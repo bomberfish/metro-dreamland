@@ -1,3 +1,5 @@
+@import "./controls.css";
+
 /* ==========================================================================
    metro-dreamland: the stylesheet
 
@@ -8,17 +10,24 @@
        @import "metro-dreamland/metro.css";
 
    What it expects of the app, as custom properties on :root (the app's
-   colours and type; none of them are set here):
+   colours and type; none of them are set here, and theme.css sets all of
+   them from the phone's theme, for an app that hasn't its own):
 
-       --text, --text1, --supertext(-hsl), --subtext0/1   type
-       --surface0/1, --core-hsl, --crust-hsl              surfaces
+       --supertext(-hsl), --subtext0                      type
+       --surface1 (chrome tiles), --surface3 (a slider's
+         bar), --core(-hsl)                                surfaces
        --accent, --accent-hsl, --accent-fill               the accent
        --on-accent                                         ink on an accent
                                                             tile, as r, g, b
-       --accent-text(-hsl)                                 ...as type
+       --accent-text                                       ...as type
        --font-display, --font-body                         type faces
        --bg-bottom-now                                     the page's colour
-                                                            (under scrollbars)
+                                                            (under scrollbars,
+                                                            round a switch)
+
+   The controls (controls.css) are drawn in the phone's theme instead
+   (--m-fg, --m-chrome...: "The phone's two themes", below), dark unless
+   data-m-theme="light" says otherwise, and the accent.
 
    And what it can be told, where the app knows better (each has a
    default here or where it's used):
@@ -31,7 +40,8 @@
        --g, --u                     a grid of tiles' gap and unit (Tiles)
 
    What it gives the app: Windows Phone 8's twenty accent colours, as
-   --m-lime ... --m-taupe (below), and the materials (--glass etc.).
+   --m-lime ... --m-taupe (below) and as tile colours (.c-lime ...), its
+   two themes' colours (--m-fg ...), and the materials (--glass etc.).
    ========================================================================== */
 
 /* ---- The accent set: Windows Phone 8's twenty ----
@@ -57,6 +67,80 @@
 	--m-steel: #647687;
 	--m-mauve: #76608a;
 	--m-taupe: #87794e;
+}
+
+/* ---- The phone's two themes ----
+   Windows Phone 8's theme brushes (the SDK's ThemeResources.xaml, Dark and
+   Light), which the controls below are drawn in: the form controls,
+   pickers, menus, message boxes and the app bar. Dark is the default;
+   data-m-theme="light" on <html> (or on anything, for what's inside it)
+   is the light one. The app's own colours (--supertext, --surface1...,
+   at the top of this file) aren't touched: theme.css sets those from
+   these, for an app that hasn't any of its own.
+
+   Each is the brush's colour as the SDK has it, alpha and all: a
+   translucent one is meant to show the page through it. */
+:where(:root),
+:where([data-m-theme="dark"]) {
+	--m-fg: #fff; /* PhoneForeground */
+	--m-fg-rgb: 255, 255, 255;
+	--m-bg: #000; /* PhoneBackground */
+	--m-bg-rgb: 0, 0, 0;
+	--m-contrast-fg: #000; /* PhoneContrastForeground */
+	--m-contrast-bg: #fff; /* PhoneContrastBackground */
+	--m-subtle: rgba(255, 255, 255, 0.6); /* PhoneSubtle */
+	--m-disabled: rgba(255, 255, 255, 0.4); /* PhoneDisabled */
+	--m-inactive: rgba(255, 255, 255, 0.2); /* PhoneInactive */
+	--m-border: rgba(255, 255, 255, 0.749); /* PhoneBorder */
+	--m-chrome: #1f1f1f; /* PhoneChrome: app bar, message box */
+	--m-semitransparent: rgba(0, 0, 0, 0.667); /* PhoneSemitransparent */
+	--m-inverse-bg: #fff; /* PhoneInverseBackground */
+	--m-inverse-inactive: #ccc; /* PhoneInverseInactive */
+	/* text boxes: at rest, and being typed in */
+	--m-textbox: rgba(255, 255, 255, 0.749); /* PhoneTextBox */
+	--m-textbox-fg: #000; /* PhoneTextBoxForeground */
+	--m-textbox-edit: #fff; /* PhoneTextBoxEditBackground */
+	--m-textbox-edit-border: #fff; /* PhoneTextBoxEditBorder */
+	--m-textbox-readonly: rgba(0, 0, 0, 0.467); /* PhoneTextBoxReadOnly */
+	--m-caret: #000; /* PhoneTextCaret */
+	/* check boxes and radio buttons */
+	--m-check: rgba(255, 255, 255, 0.749); /* PhoneRadioCheckBox */
+	--m-check-disabled: rgba(255, 255, 255, 0.4);
+	--m-check-mark: #000; /* PhoneRadioCheckBoxCheck */
+	--m-check-mark-disabled: rgba(0, 0, 0, 0.4);
+	--m-check-pressed: #fff; /* PhoneRadioCheckBoxPressed */
+	--m-check-pressed-border: #fff;
+	color-scheme: dark;
+}
+
+:where([data-m-theme="light"]) {
+	--m-fg: rgba(0, 0, 0, 0.871);
+	--m-fg-rgb: 0, 0, 0;
+	--m-bg: #fff;
+	--m-bg-rgb: 255, 255, 255;
+	--m-contrast-fg: #fff;
+	--m-contrast-bg: rgba(0, 0, 0, 0.871);
+	--m-subtle: rgba(0, 0, 0, 0.4);
+	--m-disabled: rgba(0, 0, 0, 0.302);
+	--m-inactive: rgba(0, 0, 0, 0.2);
+	--m-border: rgba(0, 0, 0, 0.6);
+	--m-chrome: #ddd;
+	--m-semitransparent: rgba(255, 255, 255, 0.667);
+	--m-inverse-bg: #ddd;
+	--m-inverse-inactive: #e5e5e5;
+	--m-textbox: rgba(0, 0, 0, 0.149);
+	--m-textbox-fg: rgba(0, 0, 0, 0.871);
+	--m-textbox-edit: transparent;
+	--m-textbox-edit-border: rgba(0, 0, 0, 0.871);
+	--m-textbox-readonly: rgba(0, 0, 0, 0.18);
+	--m-caret: rgba(0, 0, 0, 0.871);
+	--m-check: rgba(0, 0, 0, 0.149);
+	--m-check-disabled: transparent;
+	--m-check-mark: rgba(0, 0, 0, 0.871);
+	--m-check-mark-disabled: rgba(0, 0, 0, 0.302);
+	--m-check-pressed: transparent;
+	--m-check-pressed-border: rgba(0, 0, 0, 0.871);
+	color-scheme: light;
 }
 
 :root {
@@ -128,6 +212,24 @@ html.m-swapping [data-m-page]:not([data-m-stay]) {
 	line-height: 0.95;
 	padding: var(--glow-room) var(--glow-room) 0;
 	margin: calc(-1 * var(--glow-room)) calc(-1 * var(--glow-room)) 0 !important;
+	/* (that room reaches up over whatever's above the title, the back
+	   button among them: it mustn't take their presses. The pivot's links
+	   take their own, below.) */
+	pointer-events: none;
+}
+
+.page-header .pivot a {
+	pointer-events: auto;
+}
+
+/* (the header's own box goes up with them: the title's margin carries it.
+   What's in it takes its presses; the header itself doesn't) */
+.page-header {
+	pointer-events: none;
+}
+
+.page-header > * {
+	pointer-events: auto;
 }
 
 /* A page's title sits high, close under the strip with the way back, as a
@@ -178,6 +280,78 @@ html.m-swapping [data-m-page]:not([data-m-stay]) {
 .page-header .pivot .pivot-item:hover,
 .page-header .pivot .pivot-item:focus-visible {
 	color: hsla(var(--supertext-hsl), 0.72);
+}
+
+/* WinJS's buttons, for a mouse on a tablet or desktop, when the headers
+   don't all fit (./motion/pivot.ts): a block 20 x 36 at each end of the
+   strip, 40% of the text's colour, the chevron in the page's, there while
+   the pointer is over the strip (winjs/winjs, styles-pivot.less,
+   .win-pivot-navbutton). */
+.page-header .pivot:has(.m-pivot-nav) {
+	position: relative;
+}
+
+.page-header .pivot .m-pivot-nav {
+	position: absolute;
+	/* (level with the middle of the headers' line: in their size) */
+	top: calc(var(--glow-room) + 0.475em);
+	z-index: 1;
+	display: none;
+	width: 20px;
+	height: 36px;
+	margin: -18px 0 0;
+	font-size: inherit;
+	padding: 0;
+	border: 0;
+	background: hsla(var(--supertext-hsl), 0.4);
+	color: hsla(var(--core-hsl), 0.8);
+	cursor: pointer;
+	opacity: 0;
+	pointer-events: auto;
+	transition: opacity 0.167s linear;
+}
+
+.page-header .pivot .m-pivot-nav::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: 8px;
+	height: 14px;
+	background: currentColor;
+	-webkit-mask: var(--chevron) center / contain no-repeat;
+	mask: var(--chevron) center / contain no-repeat;
+}
+
+.page-header .pivot .m-pivot-prev {
+	left: var(--glow-room);
+	--chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='M7 1 1 7l6 6' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E");
+}
+
+.page-header .pivot .m-pivot-next {
+	/* (at the edge of what's in sight of the strip: ./motion/pivot.ts) */
+	left: calc(var(--m-pivot-end, 100%) - 20px);
+	--chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='m1 1 6 6-6 6' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E");
+}
+
+.page-header .pivot .m-pivot-nav:hover {
+	color: hsla(var(--core-hsl), 0.6);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	:where(:root:not([data-m-form-factor="phone"]))
+		.page-header
+		.pivot:not([data-m-static])
+		.m-pivot-nav {
+		display: block;
+	}
+
+	:where(:root:not([data-m-form-factor="phone"]))
+		.page-header:hover
+		.pivot:not([data-m-static])
+		.m-pivot-nav {
+		opacity: 1;
+	}
 }
 
 /* ---- Round buttons: the app bar's ---- */
@@ -1216,45 +1390,7 @@ html.m-swapping [data-m-page]:not([data-m-stay]) {
 
 /* -- end of generated -- */
 
-/* ---- Square buttons: outlined, lowercase ---- */
-.m-button,
-.m-button:visited {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.45rem;
-	min-height: 2.5rem;
-	padding: 0.3rem 0.9rem 0.38rem;
-	border: 0.125rem solid var(--supertext);
-	background: hsla(var(--core-hsl), 0.45);
-	color: var(--supertext);
-	font: inherit;
-	font-weight: 600;
-	text-decoration: none !important;
-	cursor: pointer;
-	transition:
-		background-color 0.12s ease,
-		color 0.12s ease,
-		border-color 0.12s ease;
-}
-
-.m-button:hover {
-	background: hsla(var(--supertext-hsl), 0.16);
-	color: var(--supertext);
-}
-
-.m-button:active {
-	background: var(--accent);
-	border-color: var(--accent);
-	color: rgb(var(--on-accent));
-}
-
-.m-button .material-symbols {
-	font-size: 1.2rem;
-}
-
-.m-button::after {
-	display: none !important;
-}
+/* (square buttons, the phone's and Windows 8's: controls.css) */
 
 /* ==========================================================================
    Tiles
@@ -1476,33 +1612,71 @@ a.tile:focus-visible {
 .c-graphite {
 	--tile-bg: #0e0e0e;
 }
-.c-red {
-	--tile-bg: #d4111e;
+/* Windows Phone 8's twenty, each a tile colour of its own (c-lime ...
+   c-taupe: --m-lime ..., at the top) */
+.c-lime {
+	--tile-bg: var(--m-lime);
+}
+.c-green {
+	--tile-bg: var(--m-green);
 }
 .c-emerald {
 	--tile-bg: var(--m-emerald);
+}
+.c-teal {
+	--tile-bg: var(--m-teal);
+}
+.c-cyan {
+	--tile-bg: var(--m-cyan);
+}
+.c-cobalt {
+	--tile-bg: var(--m-cobalt);
 }
 .c-indigo {
 	--tile-bg: var(--m-indigo);
 }
 .c-violet {
-	--tile-bg: #9a1ff0;
+	--tile-bg: var(--m-violet);
 }
-.c-cobalt {
-	--tile-bg: var(--m-cobalt);
-}
-/* Discord's own */
-.c-blurple {
-	--tile-bg: #5865f2;
+.c-pink {
+	--tile-bg: var(--m-pink);
 }
 .c-magenta {
 	--tile-bg: var(--m-magenta);
 }
-.c-orange {
-	--tile-bg: #e85d04;
+.c-crimson {
+	--tile-bg: var(--m-crimson);
 }
-.c-teal {
-	--tile-bg: #00918f;
+.c-red {
+	--tile-bg: var(--m-red);
+}
+.c-orange {
+	--tile-bg: var(--m-orange);
+}
+.c-amber {
+	--tile-bg: var(--m-amber);
+}
+.c-yellow {
+	--tile-bg: var(--m-yellow);
+}
+.c-brown {
+	--tile-bg: var(--m-brown);
+}
+.c-olive {
+	--tile-bg: var(--m-olive);
+}
+.c-steel {
+	--tile-bg: var(--m-steel);
+}
+.c-mauve {
+	--tile-bg: var(--m-mauve);
+}
+.c-taupe {
+	--tile-bg: var(--m-taupe);
+}
+/* Discord's own */
+.c-blurple {
+	--tile-bg: #5865f2;
 }
 
 /* ---- what goes on a tile ---- */
@@ -1519,6 +1693,18 @@ a.tile:focus-visible {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+/* a count (new mail, unread messages): Windows 8's badge, at the foot of
+   the tile on the right, level with the name */
+:where(.tile-count) {
+	position: absolute;
+	right: 0.65rem;
+	bottom: 0.5rem;
+	z-index: 2;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	line-height: 1.2;
 }
 
 /* a glyph in the middle */
@@ -1727,79 +1913,7 @@ a.tile:focus-visible {
 	}
 }
 
-/* ---- Toggle switch (./components/Toggle.tsx) ----
-   The phone's: a wide outlined slot, filled with the accent when it's on,
-   and a plain block for a thumb that slides to the end it's at. There's a
-   real checkbox under it. */
-.m-toggle {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.75rem;
-	cursor: pointer;
-	-webkit-tap-highlight-color: transparent;
-}
-
-.m-toggle input {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	margin: -1px;
-	opacity: 0;
-	pointer-events: none;
-}
-
-.m-toggle-track {
-	position: relative;
-	flex: none;
-	box-sizing: border-box;
-	width: 3.375rem;
-	height: 1.375rem;
-	padding: 0.1875rem;
-	border: 0.125rem solid rgba(var(--ink, 255, 255, 255), 0.85);
-	background: transparent content-box;
-	transition: background-color 0.12s ease;
-}
-
-.m-toggle input:checked + .m-toggle-track {
-	background-color: var(--accent);
-}
-
-.m-toggle-thumb {
-	position: absolute;
-	top: -0.125rem;
-	bottom: -0.125rem;
-	left: -0.125rem;
-	width: 0.875rem;
-	background: rgb(var(--ink, 255, 255, 255));
-	/* (the gap between it and the slot is the page showing: its outline is
-	   the page's colour) */
-	outline: 0.125rem solid hsl(var(--bg-bottom-now, 0, 0%, 0%));
-	transition: transform 0.16s cubic-bezier(0.1, 0.9, 0.2, 1);
-}
-
-.m-toggle input:checked + .m-toggle-track .m-toggle-thumb {
-	transform: translateX(calc(3.375rem - 0.875rem));
-}
-
-.m-toggle input:focus-visible + .m-toggle-track {
-	outline: 2px solid var(--accent-text, currentColor);
-	outline-offset: 3px;
-}
-
-.m-toggle input:disabled + .m-toggle-track {
-	opacity: 0.4;
-}
-
-/* which it is, in words: the one that's so shows */
-.m-toggle-state {
-	min-width: 4.5em;
-	font-size: 1.05rem;
-}
-
-.m-toggle input:checked ~ .m-toggle-state > :first-child,
-.m-toggle input:not(:checked) ~ .m-toggle-state > :last-child {
-	display: none;
-}
+/* (the toggle switch: controls.css) */
 
 /* ---- tiles with several slides (cycle, see ./motion) ---- */
 .tile[data-m-cycle] {

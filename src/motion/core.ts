@@ -34,6 +34,11 @@ export interface MetroConfig {
 	 */
 	material: "flat" | "acrylic";
 	/**
+	 * The phone's controls or Windows 8's, until someone chooses
+	 * (setFormFactor): "auto" lets the window decide.
+	 */
+	formFactor: "auto" | "phone" | "desktop";
+	/**
 	 * The paths of the pages that are faces of one pivot, besides the ones a
 	 * <Pivot> has said it leads to: for the back button, to which they're
 	 * one place (it matters after a reload on a page inside one of them,
@@ -49,6 +54,7 @@ export const config: MetroConfig = {
 	cover: '[data-m-layer="cover"]',
 	reveal: ".tile",
 	material: "flat",
+	formFactor: "auto",
 	pivots: [],
 };
 
@@ -98,6 +104,26 @@ export const reduceMotion = SSR
 	? null
 	: matchMedia("(prefers-reduced-motion: reduce)");
 export const still = () => !!reduceMotion?.matches;
+
+// ---------------------------------------------------------------------------
+// Phone, or not
+// ---------------------------------------------------------------------------
+
+// The controls are the phone's on a phone and Windows 8's everywhere else
+// (a tablet, a desktop): the phone's where the screen is narrow, or short
+// and touched (a phone on its side). controls.css has the same condition
+// written out as its media queries; this is it for the components' code,
+// for what they do when they're used (a list picker opening in place or
+// dropping down, a context menu zooming the page or not...).
+export const PHONE_QUERY =
+	"(max-width: 37.49rem), (max-height: 29.99rem) and (pointer: coarse)";
+/**
+ * Whether the controls are the phone's here: the form factor in use
+ * (./formfactor.ts), which is PHONE_QUERY's answer unless one's been
+ * forced.
+ */
+export const isPhone = () =>
+	!SSR && root().getAttribute("data-m-form-factor") === "phone";
 
 // ---------------------------------------------------------------------------
 // Animation plumbing

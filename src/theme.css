@@ -1,0 +1,142 @@
+/* ==========================================================================
+   metro-dreamland: the phone's theme, for an app that hasn't one of its own
+
+   metro.css leaves the app's colours and type to the app (see the list at
+   its top). This sets all of them from Windows Phone 8's own theme, dark
+   or light (data-m-theme, metro.css: "The phone's two themes"), in one of
+   its twenty accent colours. Import it after metro.css:
+
+       @import "metro-dreamland/metro.css";
+       @import "metro-dreamland/theme.css";
+
+   and say which, on <html>:
+
+       <html data-m-theme="light" data-m-accent="lime">
+
+   (dark and cobalt if you don't). Everything here is on :where(), so the
+   app's own rules still win.
+   ========================================================================== */
+
+:where(:root) {
+	/* Segoe WP was the phone's face, Segoe UI Windows 8's; Selawik is
+	   Microsoft's open stand-in for Segoe UI, for wherever neither is */
+	--font-body:
+		"Segoe UI Variable Text", "Segoe UI", "Segoe WP", Selawik, system-ui,
+		-apple-system, "Helvetica Neue", Arial, sans-serif;
+	--font-display:
+		"Segoe UI Variable Display", "Segoe UI", "Segoe WP", Selawik, system-ui,
+		-apple-system, "Helvetica Neue", Arial, sans-serif;
+
+	/* the accent: cobalt until data-m-accent says otherwise. Tiles and
+	   everything else on the accent take white, as they did on the phone,
+	   whichever accent it is */
+	--accent-hsl: 219.9, 100%, 46.9%;
+	--accent: hsl(var(--accent-hsl));
+	--accent-fill: var(--accent);
+	--accent-text: var(--accent);
+	--accent-text-hsl: var(--accent-hsl);
+	--on-accent: 255, 255, 255;
+}
+
+/* the app's colours, from the theme's */
+:where(:root),
+:where([data-m-theme]) {
+	--supertext: var(--m-fg);
+	--supertext-hsl: 0, 0%, 100%;
+	--text: var(--m-fg);
+	--text1: var(--m-fg);
+	--subtext0: var(--m-subtle);
+	--subtext1: var(--m-subtle);
+	--surface0: var(--m-chrome);
+	--surface1: var(--m-chrome);
+	/* (a slider's bar: Windows 8's SliderTrackBackgroundThemeBrush) */
+	--surface3: rgba(255, 255, 255, 0.161);
+	--core: var(--m-bg);
+	--core-hsl: 0, 0%, 0%;
+	--crust-hsl: 0, 0%, 12.2%;
+	--bg-bottom-now: 0, 0%, 0%;
+}
+
+:where([data-m-theme="light"]) {
+	--surface3: rgba(0, 0, 0, 0.102);
+	--supertext-hsl: 0, 0%, 0%;
+	--core-hsl: 0, 0%, 100%;
+	--crust-hsl: 0, 0%, 86.7%;
+	--bg-bottom-now: 0, 0%, 100%;
+}
+
+:where(:root) {
+	background: var(--m-bg);
+	color: var(--m-fg);
+	font-family: var(--font-body);
+}
+
+/* ---- the twenty accents (the hues of --m-lime ... --m-taupe) ----
+   (what's made of the accent is made again wherever one is chosen, so a
+   part of the page can have an accent of its own) */
+:where([data-m-accent]) {
+	--accent: hsl(var(--accent-hsl));
+	--accent-fill: var(--accent);
+	--accent-text: var(--accent);
+	--accent-text-hsl: var(--accent-hsl);
+}
+:where([data-m-accent="lime"]) {
+	--accent-hsl: 69.8, 100%, 38.4%;
+}
+:where([data-m-accent="green"]) {
+	--accent-hsl: 90, 76%, 37.6%;
+}
+:where([data-m-accent="emerald"]) {
+	--accent-hsl: 120, 100%, 27.1%;
+}
+:where([data-m-accent="teal"]) {
+	--accent-hsl: 179.3, 100%, 33.5%;
+}
+:where([data-m-accent="cyan"]) {
+	--accent-hsl: 199.6, 78.7%, 49.6%;
+}
+:where([data-m-accent="cobalt"]) {
+	--accent-hsl: 219.9, 100%, 46.9%;
+}
+:where([data-m-accent="indigo"]) {
+	--accent-hsl: 264.9, 100%, 50%;
+}
+:where([data-m-accent="violet"]) {
+	--accent-hsl: 280, 100%, 50%;
+}
+:where([data-m-accent="pink"]) {
+	--accent-hsl: 316.6, 85.5%, 70.2%;
+}
+:where([data-m-accent="magenta"]) {
+	--accent-hsl: 328.1, 100%, 42.4%;
+}
+:where([data-m-accent="crimson"]) {
+	--accent-hsl: 346.3, 100%, 31.8%;
+}
+:where([data-m-accent="red"]) {
+	--accent-hsl: 5.2, 100%, 44.9%;
+}
+:where([data-m-accent="orange"]) {
+	--accent-hsl: 25, 100%, 49%;
+}
+:where([data-m-accent="amber"]) {
+	--accent-hsl: 39.9, 92%, 49%;
+}
+:where([data-m-accent="yellow"]) {
+	--accent-hsl: 52.9, 100%, 44.5%;
+}
+:where([data-m-accent="brown"]) {
+	--accent-hsl: 32.1, 49.4%, 34.1%;
+}
+:where([data-m-accent="olive"]) {
+	--accent-hsl: 104.6, 14.9%, 46.1%;
+}
+:where([data-m-accent="steel"]) {
+	--accent-hsl: 209.1, 14.9%, 46.1%;
+}
+:where([data-m-accent="mauve"]) {
+	--accent-hsl: 271.4, 17.9%, 45.9%;
+}
+:where([data-m-accent="taupe"]) {
+	--accent-hsl: 45.3, 26.8%, 41.8%;
+}

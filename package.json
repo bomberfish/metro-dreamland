@@ -14,7 +14,8 @@
 			"types": "./src/index.ts",
 			"default": "./src/index.ts"
 		},
-		"./metro.css": "./src/metro.css"
+		"./metro.css": "./src/metro.css",
+		"./theme.css": "./src/theme.css"
 	},
 	"files": [
 		"src"

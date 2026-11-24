@@ -1,4 +1,5 @@
 import type { Kept } from "./continuum";
+import { settlePivots } from "./pivot";
 import {
 	EASE_IN,
 	EASE_IN_OUT,
@@ -239,12 +240,16 @@ export function pivotOut(
 		page.querySelectorAll<HTMLElement>("[data-m-content]")
 	);
 	if (!strip || !contents.length) return swingOut(page, dir < 0);
-	const headers = Array.from(strip.children) as HTMLElement[];
-	const lead = headers[0];
+	const headers = Array.from(strip.children).filter(
+		(el) => !el.matches(".m-pivot-nav")
+	) as HTMLElement[];
+	const lead =
+		headers.find((el) => el.hasAttribute("aria-current")) ?? headers[0];
+	const still_ = strip.hasAttribute("data-m-static");
 	// the header it's going to: the one that was pressed, or the one that
 	// leads to where this is going
-	const at = headers.findIndex((el, i) =>
-		i === 0
+	const at = headers.findIndex((el) =>
+		el === lead
 			? false
 			: source && strip.contains(source)
 				? el.contains(source)
@@ -252,9 +257,22 @@ export function pivotOut(
 					el instanceof HTMLAnchorElement &&
 					norm(el.pathname) === to
 	);
-	const target = at > 0 ? headers[at] : null;
+	const target = at >= 0 ? headers[at] : null;
 	const moves: (Promise<void> | false | null | undefined)[] = [];
-	if (target && lead) {
+	if (target && lead && still_) {
+		// (a static strip: nothing moves; the one picked lights up, the one
+		// that was lit dims, and the next page's strip is the same)
+		stays = new Set(headers.map(headerKey));
+		const bright = getComputedStyle(lead);
+		const dim = getComputedStyle(target);
+		const tone = (el: Element, style: CSSStyleDeclaration) =>
+			play(el, [{}, { color: style.color, textShadow: style.textShadow }], {
+				duration: OUT_MS,
+				easing: "ease-in-out",
+			});
+		moves.push(tone(target, bright), tone(lead, dim));
+		page.setAttribute("data-m-stay", "");
+	} else if (target && lead) {
 		const rects = headers.map((el) => el.getBoundingClientRect());
 		const gap = rects.length > 1 ? rects[1].left - rects[0].right : 0;
 		// forwards, the picked one comes to the front; back, it and what's
@@ -346,12 +364,16 @@ export function pivotIn(page: Element, dir: 1 | -1) {
 	const stayed = stays;
 	stays = null;
 	if (!strip || !contents.length) return swingIn(page, dir < 0);
+	// (in the mode that suits it: ./pivot.ts)
+	settlePivots(page);
 	const from = (px: number): Keyframe[] => [
 		{ transform: `translate3d(${dir * px}px, 0, 0)`, opacity: 0 },
 		{ opacity: 1, offset: 0.3 },
 		{ transform: "translate3d(0, 0, 0)", opacity: 1 },
 	];
-	const headers = Array.from(strip.children);
+	const headers = Array.from(strip.children).filter(
+		(el) => !el.matches(".m-pivot-nav")
+	);
 	const entering = stayed
 		? headers.filter((el) => !stayed.has(headerKey(el)))
 		: headers.slice(1);

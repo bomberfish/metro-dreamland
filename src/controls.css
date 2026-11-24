@@ -1,0 +1,1796 @@
+/* ==========================================================================
+   metro-dreamland: the controls
+
+   The form controls, pickers, menus, message boxes, app bar, toasts and
+   tooltips (./components). metro.css imports this; it's in a file of its
+   own only to keep that one to the pages and tiles.
+
+   Each comes twice: the phone's (Windows Phone 8's and its toolkit's),
+   first, and then Windows 8's for a tablet or desktop, at the end ("Windows
+   8's"), which takes over wherever the form factor isn't the phone
+   (formfactor.ts).
+
+   The phone's measures are the phone's (Windows Phone 8 laid itself out on
+   a screen 480 pixels across), at 20 of its pixels to the rem: its normal type,
+   20, is 1rem, its 12-pixel margin 0.6rem, its 3-pixel borders 0.15rem.
+   Where something is Windows Phone 8.1's or Windows 8's instead, it says.
+   Colours are the theme's (metro.css, "The phone's two themes").
+   ========================================================================== */
+
+/* ---- in common ---- */
+
+/* for a screen reader only */
+.m-sr {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* the header over a control: the toolkit's, subtle and normal-sized, 8
+   pixels over what it's for (PhoneTextBox, ListPicker, DatePicker) */
+.m-header {
+	display: block;
+	margin-bottom: 0.4rem;
+	color: var(--m-subtle);
+	font-size: 1rem;
+	line-height: 1.3;
+}
+
+/* Windows 8's keyboard focus: a dotted line round what has it */
+:is(.m-check, .m-listpicker-box, .m-loop, .m-appbar-button, .m-appbar-more, .m-appbar-menu button, .m-menu-item, .m-picker-list li):focus-visible,
+.m-check input:focus-visible + .m-check-box {
+	outline: 0.1rem dotted var(--m-fg);
+	outline-offset: 0.15rem;
+}
+
+/* ==========================================================================
+   Square buttons (./components/Button.tsx)
+
+   The phone's Button (PhoneButtonBase): a 3-pixel edge in the text's
+   colour, semibold in the medium-large size (25.333), 10 pixels in and 3
+   down (5 up), 12 pixels clear all round (PhoneTouchTargetOverhang: here,
+   only above and below, so it lines up with what's beside it). Pressed,
+   it's filled with the text's colour and the text is the page's.
+   ========================================================================== */
+
+.m-button,
+.m-button:visited {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.45rem;
+	box-sizing: border-box;
+	min-height: 2.4rem;
+	margin: 0.6rem 0;
+	padding: 0.15rem 0.5rem 0.25rem;
+	border: 0.15rem solid var(--m-fg);
+	background: transparent;
+	color: var(--m-fg);
+	font: inherit;
+	font-size: 1.2667rem;
+	font-weight: 600;
+	line-height: 1.6rem;
+	text-decoration: none !important;
+	cursor: pointer;
+}
+
+.m-button:active:not(:disabled) {
+	background: var(--m-fg);
+	border-color: var(--m-fg);
+	color: var(--m-bg);
+}
+
+.m-button:disabled {
+	border-color: var(--m-disabled);
+	color: var(--m-disabled);
+	cursor: default;
+}
+
+.m-button .material-symbols {
+	font-size: 1.2em;
+}
+
+.m-button::after {
+	display: none !important;
+}
+
+/* (what's only Windows 8's, out of sight on the phone) */
+.m-tick-8,
+.m-listpicker-value,
+.m-datetime-desk,
+.m-appbar-secondary {
+	display: none;
+}
+
+/* ---- Toggle switch (./components/Toggle.tsx) ----
+   The phone's (the Windows Phone Toolkit's ToggleSwitch, at 20 of its
+   pixels to the rem): a slot 89 x 34, edged 3 pixels in the text's colour
+   with 4 of the page's colour inside that, filled with the accent when
+   it's on; a thumb 20 x 38 in the text's colour, the page's colour cut 4
+   pixels down either side of it, at the end it's at. Beside it, On or Off
+   in large light type (32). There's a real checkbox under it. */
+.m-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 1.2rem;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.m-toggle input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.m-toggle-track {
+	position: relative;
+	flex: none;
+	box-sizing: border-box;
+	width: 4.45rem;
+	height: 1.7rem;
+	padding: 0.2rem;
+	border: 0.15rem solid rgb(var(--ink, var(--m-fg-rgb, 255, 255, 255)));
+	background: transparent content-box;
+	transition: background-color 0.12s ease;
+}
+
+.m-toggle input:checked + .m-toggle-track {
+	background-color: var(--accent);
+}
+
+.m-toggle-thumb {
+	position: absolute;
+	top: -0.25rem;
+	left: -0.15rem;
+	width: 1rem;
+	height: 1.9rem;
+	background: rgb(var(--ink, var(--m-fg-rgb, 255, 255, 255)));
+	/* (the gap either side of it is the page showing: the page's colour) */
+	box-shadow:
+		-0.2rem 0 0 hsl(var(--bg-bottom-now, 0, 0%, 0%)),
+		0.2rem 0 0 hsl(var(--bg-bottom-now, 0, 0%, 0%));
+	transition: transform 0.16s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.m-toggle input:checked + .m-toggle-track .m-toggle-thumb {
+	transform: translateX(calc(4.45rem - 1rem));
+}
+
+.m-toggle input:focus-visible + .m-toggle-track {
+	outline: 2px solid var(--accent-text, currentColor);
+	outline-offset: 3px;
+}
+
+.m-toggle input:disabled + .m-toggle-track {
+	opacity: 0.4;
+}
+
+/* which it is, in words: the one that's so shows */
+.m-toggle-state {
+	min-width: 3em;
+	font-size: 1.6rem;
+	font-weight: 300;
+	line-height: 1.2;
+}
+
+.m-toggle input:checked ~ .m-toggle-state > :first-child,
+.m-toggle input:not(:checked) ~ .m-toggle-state > :last-child {
+	display: none;
+}
+
+/* ==========================================================================
+   Check boxes and radio buttons (./components/CheckBox.tsx)
+
+   PhoneRadioButtonCheckBoxBase: a 32-pixel box, 3-pixel edge, both in the
+   check colour; the tick 23 x 21 (a dot 16 across for a radio button) in
+   the tick colour; the label 12 pixels off in the medium size (22.667),
+   the whole of it held 20 pixels clear above and below
+   (PhoneTouchTargetLargeOverhang), which is what spaced a list of them.
+   ========================================================================== */
+
+.m-check {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	padding: 1rem 0;
+	color: var(--m-fg);
+	font-size: 1.1333rem;
+	line-height: 1.3;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+}
+
+/* the real input, over the box: clear, but there for the keys and touch */
+.m-check input {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	width: 1.6rem;
+	height: 1.6rem;
+	margin: -0.8rem 0 0;
+	opacity: 0;
+	cursor: inherit;
+}
+
+.m-check-box {
+	position: relative;
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 1.6rem;
+	height: 1.6rem;
+	border: 0.15rem solid var(--m-check);
+	background: var(--m-check);
+}
+
+.m-check-box svg {
+	width: 1.15rem;
+	height: 1.05rem;
+	fill: var(--m-check-mark);
+	visibility: hidden;
+}
+
+.m-check input:checked + .m-check-box svg {
+	visibility: visible;
+}
+
+/* indeterminate: a 16-pixel square */
+.m-check input:indeterminate + .m-check-box::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: 0.8rem;
+	height: 0.8rem;
+	background: var(--m-check-mark);
+}
+
+.m-check input:indeterminate + .m-check-box svg {
+	visibility: hidden;
+}
+
+/* pressed: the box lights up */
+.m-check:active input:not(:disabled) + .m-check-box {
+	background: var(--m-check-pressed);
+	border-color: var(--m-check-pressed-border);
+}
+
+.m-check:has(input:disabled) {
+	color: var(--m-disabled);
+	cursor: default;
+}
+
+.m-check input:disabled + .m-check-box {
+	background: var(--m-check-disabled);
+	border-color: var(--m-disabled);
+}
+
+.m-check input:disabled + .m-check-box svg {
+	fill: var(--m-check-mark-disabled);
+}
+
+.m-check input:disabled:indeterminate + .m-check-box::after {
+	background: var(--m-check-mark-disabled);
+}
+
+/* a radio button: the same, round, with a dot */
+.m-radio .m-check-box {
+	border-radius: 50%;
+}
+
+.m-radio input:checked + .m-check-box::after {
+	content: "";
+	width: 0.8rem;
+	height: 0.8rem;
+	border-radius: 50%;
+	background: var(--m-check-mark);
+}
+
+.m-radio input:disabled:checked + .m-check-box::after {
+	background: var(--m-check-mark-disabled);
+}
+
+/* ==========================================================================
+   Text boxes (./components/TextBox.tsx)
+
+   The phone's TextBox: the text box colour, box and edge alike, a 3-pixel
+   edge; its text black, in the medium-large size (25.333), 11 pixels in;
+   being typed in, the box goes white (clear, on the light theme) with an
+   edge of the text's colour. Selection in the accent. Read-only: the
+   resting box with its text greyed; disabled: no box, a grey edge.
+   ========================================================================== */
+
+.m-textbox {
+	display: block;
+	padding: 0.6rem 0;
+}
+
+.m-textbox-input {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 2.4rem;
+	margin: 0;
+	padding: 0.1rem 0.55rem;
+	border: 0.15rem solid var(--m-textbox);
+	border-radius: 0;
+	background: var(--m-textbox);
+	color: var(--m-textbox-fg);
+	caret-color: var(--m-caret);
+	font: inherit;
+	font-size: 1.2667rem;
+	line-height: 1.6rem;
+	outline: none;
+	appearance: none;
+	-webkit-appearance: none;
+	resize: vertical;
+}
+
+textarea.m-textbox-input {
+	min-height: calc(var(--rows, 3) * 1.6rem + 0.5rem);
+}
+
+.m-textbox-input::placeholder {
+	color: var(--m-textbox-readonly);
+	opacity: 1;
+}
+
+.m-textbox-input:focus {
+	background: var(--m-textbox-edit);
+	border-color: var(--m-textbox-edit-border);
+}
+
+.m-textbox-input::selection {
+	background: var(--accent);
+	color: #fff;
+}
+
+.m-textbox-input:read-only:not(:disabled) {
+	background: var(--m-textbox);
+	border-color: var(--m-textbox);
+	color: var(--m-textbox-readonly);
+}
+
+.m-textbox-input:disabled {
+	background: transparent;
+	border-color: var(--m-disabled);
+	color: var(--m-disabled);
+}
+
+.m-textbox-input:disabled::placeholder {
+	color: var(--m-disabled);
+}
+
+/* (the phone's search box and the like had no clear button or spinner) */
+.m-textbox-input::-webkit-search-cancel-button,
+.m-textbox-input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+
+/* ==========================================================================
+   List pickers (./components/ListPicker.tsx)
+
+   The toolkit's ListPicker: the push button's edge (3 pixels, the text's
+   colour) round its items, 8 by 10 pixels in, in the medium-large size.
+   Closed, the box is the chosen item's height less 8 pixels, the items
+   moved up so it's the one showing (NormalModeOffset). Open, it's white
+   (PhoneTextBoxEditBackground) with black type, as tall as all of them,
+   the chosen one in the accent.
+   ========================================================================== */
+
+.m-listpicker {
+	--item-h: 2.65rem;
+	display: block;
+	padding: 0.6rem 0;
+}
+
+.m-listpicker-box {
+	position: relative;
+	box-sizing: content-box;
+	height: calc(var(--item-h) - 0.4rem);
+	overflow: hidden;
+	border: 0.15rem solid var(--m-fg);
+	background: transparent;
+	color: var(--m-fg);
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+	transition:
+		height 0.2s var(--m-ease-listpicker),
+		background-color 0s,
+		color 0s;
+}
+
+.m-listpicker-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	transform: translateY(calc(-1 * var(--i) * var(--item-h) - 0.2rem));
+	transition: transform 0.2s var(--m-ease-listpicker);
+}
+
+.m-listpicker-list li {
+	box-sizing: border-box;
+	height: var(--item-h);
+	padding: 0.5rem 0.4rem;
+	overflow: hidden;
+	font-size: 1.2667rem;
+	line-height: 1.65rem;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	outline: none;
+}
+
+.m-listpicker[data-open] .m-listpicker-box {
+	height: calc(var(--n) * var(--item-h));
+	background: var(--m-textbox-edit);
+	border-color: var(--m-textbox-edit-border);
+	color: var(--m-textbox-fg);
+}
+
+.m-listpicker[data-open] .m-listpicker-list {
+	transform: translateY(0);
+}
+
+.m-listpicker[data-open] [aria-selected="true"] {
+	color: var(--accent);
+}
+
+.m-listpicker[data-open] li:focus-visible {
+	outline: 0.1rem dotted currentColor;
+	outline-offset: -0.25rem;
+}
+
+.m-listpicker[data-disabled] .m-listpicker-box {
+	border-color: var(--m-disabled);
+	color: var(--m-disabled);
+	cursor: default;
+}
+
+/* (the exponential ease in and out, exponent 4: written out by
+   ./motion/ease.ts's exponential("in-out", 4)) */
+:root {
+	--m-ease-listpicker: linear(
+		0.0000, 0.0037, 0.0088, 0.0160, 0.0261, 0.0401, 0.0596, 0.0869, 0.1249,
+		0.1780, 0.2522, 0.3556, 0.5000, 0.6444, 0.7478, 0.8220, 0.8751, 0.9131,
+		0.9404, 0.9599, 0.9739, 0.9840, 0.9912, 0.9963, 1.0000
+	);
+}
+
+/* ==========================================================================
+   Layers (./components/layer.ts): the pages and menus that open over the
+   page. A <dialog> that fills the window and draws nothing itself.
+   ========================================================================== */
+
+.m-layer {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	max-width: none;
+	max-height: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--m-fg);
+	overflow: hidden;
+	font-family: var(--font-body);
+	outline: none;
+}
+
+.m-layer::backdrop {
+	background: transparent;
+}
+
+/* ---- the pickers' own pages (the list picker's long lists; dates and
+   times): the theme's background (the date and time pages: its chrome) ---- */
+.m-listpicker-page {
+	background: var(--m-bg);
+	display: flex;
+	flex-direction: column;
+}
+
+/* the toolkit's header: PhoneFontFamilySemiBold, medium (22.667), in
+   capitals, 24 pixels in */
+.m-picker-title {
+	margin: 0;
+	padding: 1.6rem 1.2rem 1.2rem;
+	font-size: 1.1333rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	padding-top: max(1.6rem, env(safe-area-inset-top));
+}
+
+/* the long list: each item in light type, 43 pixels */
+.m-picker-list {
+	flex: 1;
+	margin: 0;
+	padding: 0 1.2rem 2rem;
+	overflow-y: auto;
+	list-style: none;
+	overscroll-behavior: contain;
+}
+
+.m-picker-list li {
+	padding: 0.35rem 0;
+	font-size: 2.15rem;
+	font-weight: 300;
+	line-height: 1.2;
+	cursor: pointer;
+	outline: none;
+	transform-style: preserve-3d;
+}
+
+.m-picker-list [aria-selected="true"] {
+	color: var(--accent);
+}
+
+/* ==========================================================================
+   Date and time pickers (./components/DateTimePicker.tsx)
+
+   On the page, the push button with the value on it (left-aligned, normal
+   weight, under its header). Its page: the chrome, the header, and the
+   looping columns, 148 pixels each, squares 136 across in them (148 less
+   the toolkit's ItemMargin, 6 a side), each with its number in 54-pixel
+   semibold over its name in 20, 6 pixels in from its foot and its left.
+   ========================================================================== */
+
+.m-datetime {
+	display: block;
+	padding: 0.6rem 0;
+}
+
+.m-datetime-button.m-button {
+	display: block;
+	width: 100%;
+	min-height: 2.4rem;
+	margin: 0;
+	padding: 0.15rem 0.55rem 0.25rem;
+	text-align: left;
+	font-size: 1.2667rem;
+	font-weight: 400;
+	text-transform: none;
+}
+
+.m-picker-page {
+	background: transparent;
+}
+
+.m-picker-sheet {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	background: var(--m-chrome);
+	transform-origin: 50% 50%;
+}
+
+.m-loops {
+	position: relative;
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	justify-content: center;
+	padding-bottom: var(--m-appbar-closed, 3.93rem);
+}
+
+.m-loop {
+	--square: 7.4rem;
+	width: var(--square);
+	height: 100%;
+	overflow-y: scroll;
+	scroll-snap-type: y mandatory;
+	scrollbar-width: none;
+	overscroll-behavior: contain;
+	outline: none;
+}
+
+.m-loop::-webkit-scrollbar {
+	display: none;
+}
+
+/* room above and below for the first and last to come to the middle
+   (half the column, less half a square: the column's a size container) */
+.m-loop {
+	container-type: size;
+}
+
+.m-loop-track {
+	padding-block: calc((100cqh - var(--square)) / 2);
+}
+
+.m-loop-item {
+	box-sizing: border-box;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	height: var(--square);
+	margin: 0;
+	padding: 0.6rem;
+	scroll-snap-align: center;
+	color: var(--m-subtle);
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+/* the square itself, 6 pixels in from the slot's edges */
+.m-loop-item::before {
+	content: "";
+	position: absolute;
+	inset: 0.3rem;
+	border: 0.15rem solid transparent;
+	z-index: -1;
+}
+
+.m-loop-number {
+	font-size: 2.7rem;
+	font-weight: 600;
+	line-height: 1;
+	margin-bottom: -0.1rem;
+}
+
+.m-loop-name {
+	font-size: 1rem;
+	line-height: 1.2;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* touched: every square shows its edge (the subtle colour, at 80%) */
+.m-loop[data-expanded] .m-loop-item::before {
+	border-color: var(--m-subtle);
+	opacity: 0.8;
+}
+
+/* the chosen one: filled with the accent, white type, no edge */
+.m-loop .m-loop-chosen {
+	color: #fff;
+}
+
+.m-loop .m-loop-chosen::before {
+	background: var(--accent);
+	border-color: transparent;
+	opacity: 1;
+}
+
+/* ==========================================================================
+   Context menus (./components/ContextMenu.tsx)
+
+   The toolkit's ContextMenu: opaque white on the dark theme (black on the
+   light) with a 2-pixel edge of the other colour above and below; 18
+   pixels above its items and 28 below; each item in large semilight type
+   (32), 25 pixels in, 10 above and below, in the page's background colour.
+   Separators: 3 pixels of it, 20 in from each side.
+   ========================================================================== */
+
+:where(:root),
+:where([data-m-theme="dark"]) {
+	--m-menu: #fff;
+	--m-menu-edge: #000;
+}
+
+:where([data-m-theme="light"]) {
+	--m-menu: #000;
+	--m-menu-edge: #fff;
+}
+
+.m-menu-fade {
+	position: fixed;
+	inset: 0;
+	background: var(--m-bg);
+	opacity: 0;
+}
+
+.m-menu-held {
+	position: fixed !important;
+	margin: 0 !important;
+	box-sizing: border-box;
+	pointer-events: none;
+	transform: none !important;
+}
+
+.m-menu {
+	position: fixed;
+	display: flex;
+	flex-direction: column;
+	transform-origin: 0 0;
+}
+
+.m-menu-edge {
+	display: block;
+	height: 0.1rem;
+	background: var(--m-menu-edge);
+}
+
+.m-menu-edge-fill {
+	background: var(--m-menu);
+}
+
+.m-menu-inner {
+	display: flex;
+	flex-direction: column;
+	padding: 0.9rem 0 1.4rem;
+	background: var(--m-menu);
+	transform-origin: 0 0;
+}
+
+.m-menu-item {
+	display: block;
+	width: 100%;
+	margin: 0;
+	padding: 0.5rem 1rem 0.5rem 1.25rem;
+	border: 0;
+	background: transparent;
+	color: var(--m-bg);
+	font: inherit;
+	font-size: 1.6rem;
+	font-weight: 350;
+	line-height: 1.25;
+	text-align: left;
+	cursor: pointer;
+}
+
+.m-menu-item:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.m-menu-item:focus-visible {
+	outline-color: var(--m-bg);
+	outline-offset: -0.2rem;
+}
+
+.m-menu-separator {
+	height: 0.15rem;
+	margin: 0.2rem 1rem;
+	border: 0;
+	background: var(--m-bg);
+}
+
+/* what has one: no callout or selection while it's held */
+.m-menu-owner {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+/* ==========================================================================
+   Message boxes (./components/MessageBox.tsx)
+
+   The toolkit's CustomMessageBox: the chrome, the full width, over the
+   page dimmed by 60% of the background colour. Inside, 480 pixels: the
+   title (semibold, normal size) 24 in and 16 down, the caption (semibold,
+   large: 32), the message (semilight, medium: 22.667), 18 pixels, then the
+   buttons, side by side, 12 from the edges and the foot.
+   ========================================================================== */
+
+.m-msgbox-scrim {
+	position: fixed;
+	inset: 0;
+	background: rgba(var(--m-bg-rgb), 0.6);
+}
+
+.m-msgbox {
+	position: fixed;
+	inset: 0 0 auto;
+	background: var(--m-chrome);
+	color: var(--m-fg);
+	padding-top: env(safe-area-inset-top);
+}
+
+.m-msgbox-inner {
+	max-width: 24rem;
+	padding: 0 0 0.6rem;
+}
+
+.m-msgbox-title {
+	margin: 0;
+	padding: 0.8rem 1.2rem 0;
+	font-size: 1rem;
+	font-weight: 600;
+}
+
+.m-msgbox-caption {
+	margin: 0;
+	padding: 0.4rem 1.2rem 0;
+	font-size: 1.6rem;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.m-msgbox-message {
+	margin: 0;
+	padding: 0.55rem 1.2rem 0;
+	font-size: 1.1333rem;
+	font-weight: 350;
+	line-height: 1.35;
+}
+
+.m-msgbox-content {
+	padding: 0 0.6rem;
+}
+
+.m-msgbox-buttons {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0 0.6rem;
+	padding: 0.9rem 0.6rem 0;
+}
+
+.m-msgbox-buttons .m-button {
+	width: 100%;
+	margin: 0;
+}
+
+/* ==========================================================================
+   The app bar (./components/AppBar.tsx)
+
+   Windows Phone 8.1's shell's, as Cornflower measured it (CSS pixels, as
+   the phone's view pixels): closed 62.92 tall (26.25, minimal); circles
+   40.75 across with a 2.68 ring, their tops 10.45 below the bar's, in slots
+   73.75 wide, centred; the ellipsis' dots 10.49 down, the last 20.59 in
+   from the right. Open: the labels, 11.67 semibold, their baselines 71.25
+   below the top; the menu's lines in 27.92 semilight, 59.17 apart, the
+   first baseline 125.83 down.
+   ========================================================================== */
+
+.m-appbar {
+	position: fixed;
+	inset: auto 0 0;
+	z-index: 50;
+	height: var(--closed-h);
+	color: var(--m-fg);
+	font-family: var(--font-body);
+	-webkit-tap-highlight-color: transparent;
+}
+
+.m-appbar[data-position="absolute"] {
+	position: absolute;
+}
+
+.m-appbar-scrim {
+	position: fixed;
+	inset: 0;
+	display: none;
+}
+
+.m-appbar[data-position="absolute"] .m-appbar-scrim {
+	position: absolute;
+	inset: auto 0 0;
+	height: 100vh;
+}
+
+.m-appbar[data-open] .m-appbar-scrim {
+	display: block;
+}
+
+/* the bar is as tall as it is open, and closed it's moved down so only its
+   top shows: opening moves its top up and nothing in it */
+.m-appbar-bar {
+	position: absolute;
+	inset: auto 0 0;
+	height: calc(var(--open-h) + env(safe-area-inset-bottom));
+	background: var(--m-chrome);
+	transform: translateY(calc(var(--open-h) - var(--closed-h)));
+}
+
+.m-appbar[data-open] .m-appbar-bar {
+	transform: translateY(0);
+}
+
+.m-appbar-buttons {
+	display: flex;
+	justify-content: center;
+	padding: 0 3rem;
+}
+
+.m-appbar-minimal .m-appbar-buttons {
+	visibility: hidden;
+}
+
+.m-appbar-minimal[data-open] .m-appbar-buttons {
+	visibility: visible;
+}
+
+.m-appbar-button {
+	position: relative;
+	width: 73.75px;
+	height: 89.17px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.m-appbar-ring {
+	position: absolute;
+	top: 10.45px;
+	left: 50%;
+	display: grid;
+	place-items: center;
+	box-sizing: border-box;
+	width: 40.75px;
+	height: 40.75px;
+	margin-left: -20.375px;
+	border: 2.68px solid var(--m-fg);
+	border-radius: 50%;
+	transition: transform 0.1s ease-out;
+}
+
+.m-appbar-ring .material-symbols {
+	font-size: 20px;
+	line-height: 1;
+}
+
+.m-appbar-label {
+	position: absolute;
+	top: 61px;
+	left: -0.5rem;
+	right: -0.5rem;
+	font-size: 11.67px;
+	font-weight: 600;
+	line-height: 1;
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* pressed: the circle the accent, the icon white, 94% of its size and 2
+   pixels higher (dark); on the light theme, the checked look, risen */
+.m-appbar-button:active:not(:disabled) .m-appbar-ring {
+	background: var(--accent);
+	border-color: var(--accent);
+	color: #fff;
+	transform: translateY(-2.08px) scale(0.9376);
+}
+
+:where([data-m-theme="light"]) .m-appbar-button:active:not(:disabled) .m-appbar-ring {
+	background: #000;
+	border-color: #fff;
+	color: var(--m-chrome);
+	transform: translateY(-2.08px);
+}
+
+.m-appbar-button:disabled {
+	opacity: 0.451;
+	cursor: default;
+}
+
+.m-appbar-more {
+	position: absolute;
+	top: 0;
+	right: 0;
+	display: flex;
+	justify-content: flex-end;
+	gap: 4px;
+	width: 3.5rem;
+	height: var(--closed-h);
+	margin: 0;
+	padding: 10.49px 20.59px 0 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+}
+
+.m-appbar-more i {
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: var(--m-fg);
+}
+
+.m-appbar-menu {
+	position: absolute;
+	inset: 89.17px 0 0;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+.m-appbar-menu button {
+	display: block;
+	width: 100%;
+	height: 59.17px;
+	margin: 0;
+	padding: 0 1.25rem;
+	border: 0;
+	background: none;
+	color: var(--m-fg);
+	font: inherit;
+	font-size: 27.92px;
+	font-weight: 350;
+	line-height: 59.17px;
+	text-align: left;
+	text-transform: lowercase;
+	cursor: pointer;
+}
+
+.m-appbar-menu button:disabled {
+	opacity: 0.451;
+	cursor: default;
+}
+
+/* ==========================================================================
+   Toasts (./components/Toast.tsx)
+
+   Windows Phone 8's: the accent, across the top, the type white, normal
+   size: the title semibold, the message after it.
+   ========================================================================== */
+
+.m-toast {
+	position: fixed;
+	inset: 0 0 auto;
+	z-index: 100;
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	min-height: 3.2rem;
+	padding: max(0.6rem, env(safe-area-inset-top)) 1.2rem 0.6rem;
+	background: var(--accent);
+	color: #fff;
+	font-family: var(--font-body);
+	font-size: 1rem;
+	line-height: 1.3;
+	cursor: pointer;
+	touch-action: pan-y;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.m-toast-icon {
+	flex: none;
+	font-size: 1.1rem;
+}
+
+.m-toast-text {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.m-toast-title {
+	font-weight: 600;
+	margin-right: 0.5rem;
+}
+
+/* ==========================================================================
+   Tooltips (./components/ToolTip.ts)
+
+   Windows 8's ToolTip (CSS pixels, as Windows 8's): white, a 2-pixel edge
+   of #808080, its type #666 at 12 pixels, 10 in and 6 down (7 up), the
+   same in both themes.
+   ========================================================================== */
+
+.m-tip {
+	position: fixed;
+	z-index: 200;
+	max-width: 20rem;
+	padding: 6px 10px 7px;
+	border: 2px solid #808080;
+	background: #fff;
+	color: #666;
+	font-family: var(--font-body);
+	font-size: 12px;
+	line-height: 1.35;
+	pointer-events: none;
+}
+
+/* ==========================================================================
+   Windows 8's, for a tablet or a desktop
+
+   Everything above is the phone's. Where the form factor isn't the phone
+   (formfactor.ts: data-m-form-factor on <html>, set from the window or
+   forced; or not set at all, before any script has run), the controls are
+   Windows 8.1's instead: their default templates and theme resources, from
+   Microsoft's "styles and templates" pages for Windows 8.1 (Button,
+   CheckBox, RadioButton, ToggleSwitch, TextBox, ComboBox, DatePicker,
+   TimePicker, MenuFlyout, AppBarButton, CommandBar). Windows 8 laid itself
+   out in pixels, so these are in pixels too: its control text is 14.667.
+   (:where() throughout, so none of this outweighs an app's own rules.)
+   ========================================================================== */
+
+/* the Windows 8 theme resources, dark and light */
+:where(:root),
+:where([data-m-theme="dark"]) {
+	--w8-fg: #fff;
+	--w8-disabled: rgba(255, 255, 255, 0.4); /* #66FFFFFF */
+	--w8-button-bg: transparent;
+	--w8-button-border: #fff;
+	--w8-button-hover: rgba(255, 255, 255, 0.129); /* #21FFFFFF */
+	--w8-button-pressed: #fff;
+	--w8-button-pressed-fg: #000;
+	--w8-button-disabled-bg: transparent;
+	--w8-check: rgba(255, 255, 255, 0.8); /* #CCFFFFFF */
+	--w8-check-border: rgba(255, 255, 255, 0.8);
+	--w8-check-hover: rgba(255, 255, 255, 0.871); /* #DEFFFFFF */
+	--w8-check-hover-border: rgba(255, 255, 255, 0.871);
+	--w8-check-pressed: #fff;
+	--w8-check-pressed-mark: #000;
+	--w8-check-disabled: rgba(255, 255, 255, 0.4);
+	--w8-check-disabled-border: rgba(255, 255, 255, 0.4);
+	--w8-field-border: #fff; /* TextBoxBorder */
+	--w8-field-disabled-bg: transparent;
+	--w8-field-disabled-border: rgba(255, 255, 255, 0.4);
+	--w8-combo-border: rgba(255, 255, 255, 0.8); /* #CCFFFFFF */
+	--w8-combo-hover-border: rgba(255, 255, 255, 0.871);
+	--w8-combo-pressed-border: #fff;
+	--w8-switch-track: rgba(255, 255, 255, 0.259); /* #42FFFFFF */
+	--w8-switch-edge: rgba(255, 255, 255, 0.349); /* #59FFFFFF */
+	--w8-switch-hover: rgba(255, 255, 255, 0.29); /* #4AFFFFFF */
+	--w8-switch-knob: #fff;
+	--w8-switch-knob-disabled: #7e7e7e;
+	--w8-switch-track-disabled: rgba(255, 255, 255, 0.122); /* #1FFFFFFF */
+	--w8-switch-edge-disabled: rgba(255, 255, 255, 0.2); /* #33FFFFFF */
+	--w8-appbar: #000;
+	--w8-appbar-hover: rgba(255, 255, 255, 0.129);
+	--w8-appbar-pressed-fg: #000;
+}
+
+:where([data-m-theme="light"]) {
+	--w8-fg: #000;
+	--w8-disabled: rgba(0, 0, 0, 0.4); /* #66000000 */
+	--w8-button-bg: rgba(182, 182, 182, 0.702); /* #B3B6B6B6 */
+	--w8-button-border: rgba(0, 0, 0, 0.2); /* #33000000 */
+	--w8-button-hover: rgba(205, 205, 205, 0.82); /* #D1CDCDCD */
+	--w8-button-pressed: #000;
+	--w8-button-pressed-fg: #fff;
+	--w8-button-disabled-bg: rgba(202, 202, 202, 0.4); /* #66CACACA */
+	--w8-check-border: rgba(0, 0, 0, 0.271); /* #45000000 */
+	--w8-check-hover-border: rgba(0, 0, 0, 0.439); /* #70000000 */
+	--w8-check-pressed: #000;
+	--w8-check-pressed-mark: #fff;
+	--w8-check-disabled: rgba(202, 202, 202, 0.4);
+	--w8-check-disabled-border: rgba(0, 0, 0, 0.149); /* #26000000 */
+	--w8-field-border: rgba(0, 0, 0, 0.639); /* #A3000000 */
+	--w8-field-disabled-bg: rgba(202, 202, 202, 0.4);
+	--w8-field-disabled-border: rgba(0, 0, 0, 0.149);
+	--w8-combo-border: rgba(0, 0, 0, 0.271); /* #45000000 */
+	--w8-combo-hover-border: rgba(0, 0, 0, 0.439);
+	--w8-combo-pressed-border: rgba(0, 0, 0, 0.639);
+	--w8-switch-track: rgba(0, 0, 0, 0.349); /* #59000000 */
+	--w8-switch-edge: rgba(0, 0, 0, 0.349);
+	--w8-switch-hover: rgba(0, 0, 0, 0.29);
+	--w8-switch-knob: #000;
+	--w8-switch-knob-disabled: #929292;
+	--w8-switch-track-disabled: rgba(0, 0, 0, 0.122);
+	--w8-switch-edge-disabled: rgba(0, 0, 0, 0.2);
+	--w8-appbar: #f0f0f0;
+	--w8-appbar-hover: rgba(0, 0, 0, 0.239); /* #3D000000 */
+	--w8-appbar-pressed-fg: #fff;
+}
+
+:where(:root:not([data-m-form-factor="phone"])) {
+	/* ---- headers: semilight, at the control size, 6 pixels over ---- */
+	& .m-header {
+		margin-bottom: 6px;
+		color: var(--w8-fg);
+		font-size: 14.667px;
+		font-weight: 350;
+		line-height: 20px;
+	}
+
+	/* ---- Button: a 2-pixel edge, 12 by 4 in, semibold; pressed, filled
+	   with the text's colour and the text the page's ---- */
+	& .m-button,
+	& .m-button:visited {
+		min-height: 0;
+		margin: 3px;
+		padding: 4px 12px;
+		border: 2px solid var(--w8-button-border);
+		background: var(--w8-button-bg);
+		color: var(--w8-fg);
+		font-size: 14.667px;
+		font-weight: 600;
+		line-height: 20px;
+	}
+
+	& .m-button:hover {
+		background: var(--w8-button-hover);
+		color: var(--w8-fg);
+	}
+
+	& .m-button:active:not(:disabled) {
+		background: var(--w8-button-pressed);
+		border-color: var(--w8-button-border);
+		color: var(--w8-button-pressed-fg);
+	}
+
+	& .m-button:disabled {
+		background: var(--w8-button-disabled-bg);
+		border-color: var(--w8-disabled);
+		color: var(--w8-disabled);
+	}
+
+	/* ---- CheckBox and RadioButton: a 21-pixel box (a 23-pixel circle),
+	   80% white, no edge, in a column 27 (29) wide; the label 2 in ---- */
+	& .m-check {
+		align-items: flex-start;
+		gap: 8px;
+		padding: 3px 0;
+		color: var(--w8-fg);
+		font-size: 14.667px;
+		line-height: 20px;
+	}
+
+	& .m-check input {
+		top: 3px;
+		width: 21px;
+		height: 21px;
+		margin: 0;
+	}
+
+	& .m-check-box {
+		width: 21px;
+		height: 21px;
+		margin-top: 0;
+		border: 0;
+		background: var(--w8-check);
+	}
+
+	& .m-check-box .m-tick-phone {
+		display: none;
+	}
+
+	& .m-check-box .m-tick-8 {
+		display: block;
+		width: 16px;
+		height: 14px;
+		fill: #000;
+	}
+
+	& .m-check input:indeterminate + .m-check-box::after {
+		width: 9px;
+		height: 9px;
+		background: #000;
+	}
+
+	& .m-check:hover input:not(:disabled) + .m-check-box {
+		background: var(--w8-check-hover);
+	}
+
+	& .m-check:active input:not(:disabled) + .m-check-box {
+		background: var(--w8-check-pressed);
+		border-color: transparent;
+	}
+
+	& .m-check:active input:not(:disabled) + .m-check-box svg {
+		fill: var(--w8-check-pressed-mark);
+	}
+
+	& .m-check:has(input:disabled) {
+		color: var(--w8-disabled);
+	}
+
+	& .m-check input:disabled + .m-check-box {
+		background: var(--w8-check-disabled);
+	}
+
+	& .m-check input:disabled + .m-check-box svg {
+		fill: rgba(0, 0, 0, 0.4);
+	}
+
+	& .m-radio {
+		gap: 7px;
+	}
+
+	& .m-radio input {
+		width: 23px;
+		height: 23px;
+		top: 2px;
+	}
+
+	& .m-radio .m-check-box {
+		width: 23px;
+		height: 23px;
+	}
+
+	& .m-radio input:checked + .m-check-box::after {
+		width: 13px;
+		height: 13px;
+		background: #000;
+	}
+
+	& .m-radio:active input:not(:disabled):checked + .m-check-box::after {
+		background: var(--w8-check-pressed-mark);
+	}
+
+	/* ---- ToggleSwitch: the words first, 65 wide and semibold; then a
+	   track 50 x 19 with a 2-pixel edge, the accent drawn across it as far
+	   as the knob, a 12-pixel block, has come ---- */
+	& .m-toggle {
+		flex-direction: row-reverse;
+		justify-content: flex-end;
+		gap: 0;
+		color: var(--w8-fg);
+	}
+
+	& .m-toggle-track {
+		width: 50px;
+		height: 19px;
+		margin: 5px 13px 5px 13px;
+		padding: 1px;
+		border: 2px solid var(--w8-switch-edge);
+		background: var(--w8-switch-track);
+	}
+
+	& .m-toggle:hover .m-toggle-track {
+		background-color: var(--w8-switch-hover);
+	}
+
+	& .m-toggle input:checked + .m-toggle-track {
+		background:
+			linear-gradient(var(--accent), var(--accent)) 0 0 / calc(100% - 10px)
+				100% no-repeat,
+			var(--w8-switch-track);
+	}
+
+	& .m-toggle-thumb {
+		top: -2px;
+		left: -2px;
+		width: 12px;
+		height: 19px;
+		background: var(--w8-switch-knob);
+		box-shadow: none;
+	}
+
+	& .m-toggle input:checked + .m-toggle-track .m-toggle-thumb {
+		transform: translateX(38px);
+	}
+
+	& .m-toggle input:disabled + .m-toggle-track {
+		opacity: 1;
+		border-color: var(--w8-switch-edge-disabled);
+		background: var(--w8-switch-track-disabled);
+	}
+
+	& .m-toggle input:disabled + .m-toggle-track .m-toggle-thumb {
+		background: var(--w8-switch-knob-disabled);
+	}
+
+	& .m-toggle-state {
+		min-width: 65px;
+		margin: 0 0 0 6px;
+		font-size: 14.667px;
+		font-weight: 600;
+		line-height: 20px;
+	}
+
+	/* ---- TextBox: white, 80% of it at rest (87% under the pointer, all
+	   of it being typed in), a 2-pixel edge, black text, 10 by 3 in; the
+	   placeholder 67% black ---- */
+	& .m-textbox {
+		padding: 0;
+	}
+
+	& .m-textbox .m-header {
+		margin: 4px 0;
+	}
+
+	& .m-textbox-input {
+		min-height: 32px;
+		padding: 3px 10px 5px;
+		border: 2px solid color-mix(in srgb, var(--w8-field-border) 80%, transparent);
+		background: rgba(255, 255, 255, 0.8);
+		color: #000;
+		caret-color: #000;
+		font-size: 14.667px;
+		line-height: 20px;
+	}
+
+	& textarea.m-textbox-input {
+		min-height: calc(var(--rows, 3) * 20px + 10px);
+	}
+
+	& .m-textbox-input:hover {
+		background: rgba(255, 255, 255, 0.87);
+	}
+
+	& .m-textbox-input:focus {
+		background: #fff;
+		border-color: var(--w8-field-border);
+	}
+
+	& .m-textbox-input::placeholder {
+		color: rgba(0, 0, 0, 0.671); /* #AB000000 */
+	}
+
+	& .m-textbox-input:read-only:not(:disabled) {
+		background: rgba(255, 255, 255, 0.8);
+		border-color: color-mix(in srgb, var(--w8-field-border) 80%, transparent);
+		color: #666;
+	}
+
+	& .m-textbox-input:disabled {
+		background: var(--w8-field-disabled-bg);
+		border-color: var(--w8-field-disabled-border);
+		color: #666;
+	}
+
+	/* ---- ComboBox (the list picker): 80% white, a 2-pixel edge, black
+	   text 8 in, a chevron at the right; open, its list over it: white, a
+	   2-pixel edge of #212121, items 8 by 10 in, the chosen one the
+	   accent's, a light grey under the pointer ---- */
+	& .m-listpicker {
+		padding: 0;
+	}
+
+	& .m-listpicker-box,
+	& .m-listpicker[data-open] .m-listpicker-box {
+		display: flex;
+		align-items: center;
+		box-sizing: border-box;
+		height: auto;
+		min-height: 32px;
+		padding: 0 30px 0 8px;
+		overflow: visible;
+		border: 2px solid var(--w8-combo-border);
+		background:
+			url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M.5.5 6 6 11.5.5' fill='none' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E")
+				right 9px center / 12px 7px no-repeat,
+			rgba(255, 255, 255, 0.8);
+		color: #000;
+		font-size: 14.667px;
+		line-height: 20px;
+		transition: none;
+	}
+
+	& .m-listpicker-box:hover {
+		border-color: var(--w8-combo-hover-border);
+		background-color: rgba(255, 255, 255, 0.871);
+	}
+
+	& .m-listpicker[data-open] .m-listpicker-box {
+		border-color: var(--w8-combo-pressed-border);
+		background-color: #fff;
+	}
+
+	& .m-listpicker-value {
+		display: block;
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	& .m-listpicker-list {
+		display: none;
+	}
+
+	& .m-listpicker[data-open] .m-listpicker-list {
+		position: absolute;
+		top: -2px;
+		left: -2px;
+		z-index: 60;
+		display: block;
+		box-sizing: border-box;
+		min-width: max(80px, calc(100% + 4px));
+		max-height: min(70vh, 718px);
+		overflow-y: auto;
+		border: 2px solid #212121;
+		background: #fff;
+		color: #000;
+		transform: translateY(var(--drop-y, 0px));
+		transition: none;
+	}
+
+	& .m-listpicker-list li {
+		height: auto;
+		padding: 10px 8px;
+		font-size: 14.667px;
+		line-height: 20px;
+		cursor: pointer;
+	}
+
+	& .m-listpicker-list li:hover {
+		background: rgba(0, 0, 0, 0.129); /* #21000000 */
+	}
+
+	& .m-listpicker-list li:active {
+		background: #d3d3d3;
+	}
+
+	& .m-listpicker[data-open] [aria-selected="true"] {
+		background: var(--accent);
+		color: #fff;
+	}
+
+	& .m-listpicker[data-disabled] .m-listpicker-box {
+		border-color: var(--w8-check-disabled-border);
+		background-color: var(--w8-field-disabled-bg);
+		color: var(--w8-disabled);
+	}
+
+	/* ---- DatePicker, TimePicker: a combo box a part, 20 apart ---- */
+	& .m-datetime {
+		padding: 0;
+	}
+
+	& .m-datetime-button {
+		display: none !important;
+	}
+
+	& .m-datetime-desk {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px 20px;
+	}
+
+	& .m-datetime-part {
+		min-width: 80px;
+	}
+
+	/* ---- the message box: Windows 8's message dialog, a band across the
+	   middle of the screen, its content set in from the left as a page's;
+	   the title in large light type, the buttons at the right ---- */
+	& .m-msgbox {
+		inset: 50% 0 auto;
+		translate: 0 -50%;
+	}
+
+	& .m-msgbox-inner {
+		max-width: 36rem;
+		margin: 0 auto;
+		padding: 20px 0 24px;
+	}
+
+	& .m-msgbox-title {
+		padding: 0 0 4px;
+		font-size: 14.667px;
+	}
+
+	& .m-msgbox-caption {
+		padding: 0;
+		font-size: 26.667px;
+		font-weight: 300;
+	}
+
+	& .m-msgbox-message {
+		padding: 10px 0 0;
+		font-size: 14.667px;
+		font-weight: 400;
+	}
+
+	& .m-msgbox-content {
+		padding: 6px 0 0;
+	}
+
+	& .m-msgbox-buttons {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0 4px;
+		padding: 20px 0 0;
+	}
+
+	& .m-msgbox-buttons .m-button {
+		width: auto;
+		min-width: 90px;
+	}
+
+	/* ---- the app bar: Windows 8.1's, black (pale grey on the light
+	   theme) with a 2-pixel edge of the same along its top, at least 68
+	   tall, its commands at the right, 100 pixels apiece: a 40-pixel ring
+	   with its 12-pixel label under it. Out of sight until it's called for
+	   (or pinned) ---- */
+	& .m-appbar {
+		height: 0;
+		overflow: visible;
+	}
+
+	& .m-appbar-bar {
+		--m-bar: var(--w8-appbar);
+		display: flex;
+		align-items: flex-start;
+		box-sizing: border-box;
+		height: auto;
+		min-height: 68px;
+		padding: 4px 0 calc(2px + env(safe-area-inset-bottom));
+		border-top: 2px solid var(--w8-appbar);
+		background: var(--w8-appbar);
+		color: var(--w8-fg);
+		transform: translateY(100%);
+	}
+
+	& .m-appbar[data-open] .m-appbar-bar,
+	& .m-appbar[data-pinned] .m-appbar-bar {
+		transform: none;
+	}
+
+	& .m-appbar[data-pinned] .m-appbar-scrim {
+		display: none;
+	}
+
+	& .m-appbar-more,
+	& .m-appbar-menu {
+		display: none;
+	}
+
+	& .m-appbar-secondary {
+		display: flex;
+	}
+
+	& .m-appbar-buttons,
+	& .m-appbar-minimal .m-appbar-buttons {
+		visibility: visible;
+		margin-left: auto;
+		padding: 0;
+	}
+
+	& .m-appbar-button {
+		width: 100px;
+		height: auto;
+		padding: 0 0 4px;
+	}
+
+	& .m-appbar-ring {
+		position: static;
+		margin: 0 auto 5px;
+		width: 40px;
+		height: 40px;
+		border: 2px solid var(--w8-fg);
+		transform: none;
+		transition: none;
+	}
+
+	& .m-appbar-label {
+		position: static;
+		display: block;
+		width: 88px;
+		margin: 0 auto;
+		font-size: 12px;
+		font-weight: 400;
+		line-height: 16px;
+	}
+
+	& .m-appbar-button:hover:not(:disabled) .m-appbar-ring {
+		background: var(--w8-appbar-hover);
+	}
+
+	& .m-appbar-button:active:not(:disabled) .m-appbar-ring {
+		background: var(--w8-fg);
+		border-color: var(--w8-fg);
+		color: var(--w8-appbar-pressed-fg);
+		transform: none;
+	}
+
+	& .m-appbar-button:disabled {
+		opacity: 1;
+		color: var(--w8-disabled);
+	}
+
+	& .m-appbar-button:disabled .m-appbar-ring {
+		border-color: var(--w8-disabled);
+	}
+
+	/* ---- toasts: at the top right, 364 wide, the title over the
+	   message ---- */
+	& .m-toast {
+		inset: 20px 20px auto auto;
+		width: min(364px, calc(100vw - 40px));
+		min-height: 0;
+		align-items: flex-start;
+		padding: 14px 16px 16px;
+		font-size: 14.667px;
+		line-height: 20px;
+	}
+
+	& .m-toast-text {
+		white-space: normal;
+	}
+
+	& .m-toast-title {
+		display: block;
+		margin: 0;
+	}
+
+	& .m-toast-message {
+		display: block;
+	}
+}
+
+/* ---- Menu flyouts (./components/ContextMenu.tsx, showMenuFlyout) ----
+   Windows 8.1's MenuFlyout, which keeps to the light theme whatever the
+   page's: white, a 2-pixel black edge, 5 pixels above and below its items;
+   each item black semibold at the control size, 20 in and 10 down (12
+   up), a pale grey (#E5E5E5) under the pointer, black with white type
+   pressed; separators a pixel of #7A7A7A, 20 in from each side. */
+.m-flyout {
+	position: fixed;
+	box-sizing: border-box;
+	min-width: 70px;
+	max-width: 450px;
+	max-height: min(718px, calc(100vh - 8px));
+	overflow-y: auto;
+	padding: 5px 0;
+	border: 2px solid #000;
+	background: #fff;
+	color: #000;
+	font-family: var(--font-body);
+}
+
+.m-flyout-item {
+	display: block;
+	width: 100%;
+	margin: 0;
+	padding: 10px 20px 12px;
+	border: 0;
+	background: transparent;
+	color: #000;
+	font: inherit;
+	font-size: 14.667px;
+	font-weight: 600;
+	line-height: 20px;
+	text-align: left;
+	white-space: nowrap;
+	cursor: pointer;
+	outline: none;
+}
+
+.m-flyout-item:hover,
+.m-flyout-item:focus-visible {
+	background: #e5e5e5;
+}
+
+.m-flyout-item:active:not(:disabled) {
+	background: #000;
+	color: #fff;
+}
+
+.m-flyout-item:disabled {
+	color: rgba(0, 0, 0, 0.4);
+	cursor: default;
+	background: transparent;
+}
+
+.m-flyout-separator {
+	height: 1px;
+	margin: 9px 20px 10px;
+	border: 0;
+	background: #7a7a7a;
+}
+
+/* ==========================================================================
+   Acrylic, for the chrome
+
+   With the acrylic material (metro.css, "Materials"), the surfaces here
+   that are the theme's chrome (the app bar, message boxes, the date and
+   time pages) are acrylic too, as Windows 10's were: frosted, a little of
+   what's behind them showing through the chrome's colour.
+   ========================================================================== */
+
+[data-m-material="acrylic"] :is(.m-appbar-bar, .m-msgbox, .m-picker-sheet) {
+	background:
+		var(--grain-image),
+		color-mix(in srgb, var(--m-bar, var(--m-chrome)) 72%, transparent);
+	-webkit-backdrop-filter: blur(1.875rem) saturate(1.25);
+	backdrop-filter: blur(1.875rem) saturate(1.25);
+	box-shadow: inset 0 1px 0 rgba(var(--m-fg-rgb), 0.12);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+	[data-m-material="acrylic"] :is(.m-appbar-bar, .m-msgbox, .m-picker-sheet) {
+		background: var(--m-bar, var(--m-chrome));
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+	}
+}

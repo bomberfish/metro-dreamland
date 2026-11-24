@@ -15,8 +15,12 @@ import {
 	still,
 } from "./core";
 import { material, startMaterial } from "./material";
+import { startFormFactor } from "./formfactor";
+import { settlePivots, stepOf } from "./pivot";
 import { bindPano, pano, panLinks, unbindPano } from "./panorama";
 import { startReveal } from "./reveal";
+import { startToolTips } from "../components/ToolTip";
+import { settleCheckBoxes } from "../components/CheckBox";
 import { startSwipe, swipes } from "./swipe";
 import { flipOf, flipTo, hoverFlip, tickTiles } from "./tiles";
 import { press, pressTarget, unpress } from "./tilt";
@@ -397,12 +401,15 @@ export async function navigate(
  * the other way. False if this isn't a pivot with somewhere to turn to.
  */
 export function turnPivot(dir: 1 | -1) {
+	const strip = pageEl()?.querySelector("[data-m-pivot]");
 	const links = Array.from(
-		pageEl()?.querySelectorAll<HTMLAnchorElement>(
-			'[data-m-pivot] a[data-m-nav="pivot"]'
-		) ?? []
+		strip?.querySelectorAll<HTMLAnchorElement>('a[data-m-nav="pivot"]') ?? []
 	);
-	const link = dir > 0 ? links[0] : links[links.length - 1];
+	// (the next in the strip's fixed order, which isn't the order it's in
+	// when it's static: ./pivot.ts)
+	const link =
+		(strip && stepOf(strip, dir)) ??
+		(dir > 0 ? links[0] : links[links.length - 1]);
 	if (!link || flags.busy) return false;
 	const href = link.getAttribute("href") ?? "";
 	const url = new URL(href, location.href);
@@ -489,6 +496,25 @@ export function startMetro(options?: Partial<MetroConfig>) {
 	if (SSR || window.__metro) return;
 	window.__metro = true;
 	startMaterial(config.material);
+	startFormFactor(config.formFactor);
+	startToolTips();
+	// a pivot's strip, in the mode that suits it (./pivot.ts), whenever
+	// the window or the form factor changes; and its buttons, for a mouse
+	let settling = 0;
+	const resettle = () => {
+		cancelAnimationFrame(settling);
+		settling = requestAnimationFrame(() => settlePivots(pageEl() ?? document));
+	};
+	addEventListener("resize", resettle);
+	addEventListener("m-form-factor", resettle);
+	addEventListener("click", (e) => {
+		const step = (e.target as Element | null)?.closest?.<HTMLElement>(
+			"[data-m-pivot-step]"
+		);
+		if (!step) return;
+		e.preventDefault();
+		turnPivot(Number(step.dataset.mPivotStep) < 0 ? -1 : 1);
+	});
 	// (the panorama's own links to its sections come through here)
 	panLinks.section = sectionOf;
 	panLinks.jump = jump;
@@ -603,7 +629,9 @@ export function metroReady() {
 	if (SSR) return;
 	const enter = () => {
 		const page = pageEl();
+		settlePivots(page ?? document);
 		adopt(page, scrolls.get(idx));
+		settleCheckBoxes();
 		// opened at "/#projects": the page starts at that section (a reload
 		// comes back where it was instead)
 		if (!scrolls.has(idx)) land();
@@ -627,6 +655,8 @@ export function metroReady() {
 			const now = pageEl();
 			if (now === seen) return;
 			seen = now;
+			settleCheckBoxes();
+			if (now) settlePivots(now);
 			if (flags.busy) return;
 			path = norm(location.pathname);
 			readEntry();
