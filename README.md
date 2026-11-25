@@ -99,6 +99,27 @@ them as `data-m-navigation`, `data-m-idiom` and `data-m-orientation`; an
 `m-navigation` event goes out when the style changes. The sidebar follows
 the theme (dark or light) and the accent.
 
+### Wheel gestures over a panorama
+
+A panorama pans sideways with the mouse wheel, unless there's something
+under the pointer that can still scroll (a list, say): then that scrolls.
+By default that's decided for each wheel event, so a fast flick down a list
+that reaches its end carries on as a pan. To have a gesture stay with what
+it started scrolling instead, as the browser's own scrolling does, turn on
+latching, for everything or for one element and what's inside it:
+
+```ts
+startMetro({ wheelLatch: true });
+```
+
+```html
+<ol class="history" data-m-wheel-latch>…</ol>
+<div data-m-wheel-latch="off">…</div>
+```
+
+The nearest `data-m-wheel-latch` wins: a list's says whether it keeps its
+gesture, the panorama's whether a pan keeps going over a list.
+
 ## Status
 
 - **Source only.** The package ships its TypeScript and CSS as they are,

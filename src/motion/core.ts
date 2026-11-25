@@ -41,6 +41,14 @@ export interface MetroConfig {
 	 */
 	formFactor: "auto" | "phone" | "desktop";
 	/**
+	 * Whether a wheel gesture over a panorama stays with what it started
+	 * scrolling (a list inside it, or the panorama itself) until it ends,
+	 * as the browser's own scrolling does (./panorama.ts). Off by default;
+	 * data-m-wheel-latch on an element says otherwise for it and what's
+	 * inside it.
+	 */
+	wheelLatch: boolean;
+	/**
 	 * How the app's sections are got to, a pivot or a sidebar, on each kind
 	 * of device and each way up (./navstyle.ts), until the person using it
 	 * chooses (setNavigation). Whatever's left out is a pivot.
@@ -63,6 +71,7 @@ export const config: MetroConfig = {
 	reveal: ".tile",
 	material: "flat",
 	formFactor: "auto",
+	wheelLatch: false,
 	navigation: "pivot",
 	pivots: [],
 };

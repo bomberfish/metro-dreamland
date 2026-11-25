@@ -285,15 +285,29 @@ export function bindPano(page: Element) {
 		return null;
 	};
 
-	// A wheel gesture stays with whatever it started out scrolling, as the
-	// browser's own scrolling does ("latching"): a list inside that runs out
-	// of room partway through a flick (or a trackpad's coasting after it)
-	// stops there, rather than handing the rest to the panorama to pan with;
-	// and a pan that sweeps over a list carries on panning. A gesture is a
-	// run of wheel events with no gap longer than LATCH_GAP_MS between them.
+	// Optionally, a wheel gesture stays with whatever it started out
+	// scrolling, as the browser's own scrolling does ("latching"): a list
+	// inside that runs out of room partway through a flick (or a trackpad's
+	// coasting after it) stops there, rather than handing the rest to the
+	// panorama to pan with; and a pan that sweeps over a list carries on
+	// panning. A gesture is a run of wheel events with no gap longer than
+	// LATCH_GAP_MS between them.
+	//
+	// It's off unless asked for: MetroConfig.wheelLatch for everything, or
+	// data-m-wheel-latch on an element for it and what's inside it ("false"
+	// or "off" to turn it off there; anything else, or nothing, on). The
+	// nearest one says: a list's for whether it keeps its gesture, the
+	// panorama's for whether a pan keeps going over a list. Without it, each
+	// wheel event goes to whatever under the pointer still has room.
 	const LATCH_GAP_MS = 300;
 	let owner: Element | null = null;
 	let lastEvent = 0;
+	const latches = (from: Element) => {
+		const set = from.closest("[data-m-wheel-latch]");
+		if (!set) return config.wheelLatch;
+		const value = set.getAttribute("data-m-wheel-latch")?.trim().toLowerCase();
+		return value !== "false" && value !== "off";
+	};
 
 	// The wheel-driven pan eases towards `target`. It keeps its own running
 	// position (`at`) rather than reading scrollLeft back every frame: the
@@ -346,14 +360,14 @@ export function bindPano(page: Element) {
 			}
 			// (a list's gesture: the list's to the end, even once it can't
 			// go any further; then that last bit goes nowhere)
-			if (same && owner && owner !== el && owner.isConnected) {
+			if (same && owner && owner !== el && owner.isConnected && latches(owner)) {
 				const inner = scrollerInside(e.target as Element | null, e.deltaY);
 				if (inner === owner) return;
 				if (!inner) e.preventDefault();
 				else owner = inner;
 				return;
 			}
-			if (!(same && owner === el)) {
+			if (!(same && owner === el && latches(el))) {
 				owner = scrollerInside(e.target as Element | null, e.deltaY);
 				if (owner) return;
 			}
