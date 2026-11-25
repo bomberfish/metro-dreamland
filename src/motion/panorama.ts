@@ -268,9 +268,9 @@ export function bindPano(page: Element) {
 		});
 	};
 
-	// does something between the pointer and the panorama still have room
-	// to scroll this way itself?
-	const scrollsInside = (from: Element | null, dy: number) => {
+	// what between the pointer and the panorama still has room to scroll
+	// this way itself, if anything
+	const scrollerInside = (from: Element | null, dy: number) => {
 		for (let n = from; n && n !== el; n = n.parentElement) {
 			if (n.scrollHeight <= n.clientHeight + 1) continue;
 			const oy = getComputedStyle(n).overflowY;
@@ -280,10 +280,20 @@ export function bindPano(page: Element) {
 					? n.scrollTop > 0
 					: n.scrollTop + n.clientHeight < n.scrollHeight - 1
 			)
-				return true;
+				return n;
 		}
-		return false;
+		return null;
 	};
+
+	// A wheel gesture stays with whatever it started out scrolling, as the
+	// browser's own scrolling does ("latching"): a list inside that runs out
+	// of room partway through a flick (or a trackpad's coasting after it)
+	// stops there, rather than handing the rest to the panorama to pan with;
+	// and a pan that sweeps over a list carries on panning. A gesture is a
+	// run of wheel events with no gap longer than LATCH_GAP_MS between them.
+	const LATCH_GAP_MS = 300;
+	let owner: Element | null = null;
+	let lastEvent = 0;
 
 	// The wheel-driven pan eases towards `target`. It keeps its own running
 	// position (`at`) rather than reading scrollLeft back every frame: the
@@ -324,15 +334,32 @@ export function bindPano(page: Element) {
 		(e) => {
 			if (!strip) return;
 			if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+			const now = performance.now();
+			const same = now - lastEvent < LATCH_GAP_MS;
+			lastEvent = now;
 			if (Math.abs(e.deltaX) >= Math.abs(e.deltaY)) {
 				// sideways already (a two-finger swipe): the browser's to
 				// scroll, and a glide still in flight gets out of its way
+				owner = null;
 				stopGlide();
 				return;
 			}
-			if (scrollsInside(e.target as Element | null, e.deltaY)) return;
+			// (a list's gesture: the list's to the end, even once it can't
+			// go any further; then that last bit goes nowhere)
+			if (same && owner && owner !== el && owner.isConnected) {
+				const inner = scrollerInside(e.target as Element | null, e.deltaY);
+				if (inner === owner) return;
+				if (!inner) e.preventDefault();
+				else owner = inner;
+				return;
+			}
+			if (!(same && owner === el)) {
+				owner = scrollerInside(e.target as Element | null, e.deltaY);
+				if (owner) return;
+			}
 			const max = reach();
 			if (max <= 0) return;
+			owner = el;
 			e.preventDefault();
 			const unit =
 				e.deltaMode === 1 ? 36 : e.deltaMode === 2 ? el.clientWidth : 1;
