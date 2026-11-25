@@ -12,7 +12,8 @@ it as a git submodule. Everything it has is shown off, and can be tried, in
 
 | | | On a phone | On a tablet or desktop |
 |---|---|---|---|
-| **Pages** | `Page`, `PageHeader`, `Pivot`, `Panorama`, `Link` | Windows Phone 8 | Windows 8; the pivot's headers as WinJS's Pivot had them |
+| **Pages** | `Page`, `PageHeader`, `Pivot`, `Panorama`, `Link` | Windows Phone 8 | Windows 8; the pivot's headers as WinJS's Pivot had them, scrolling like tabs when they don't fit |
+| **Sections** | `Sections`, `NavPane` (a sidebar) | the pivot | the pivot, or Windows 8's PC settings sidebar: the app's rules say which (below) |
 | **Tiles** | `Tiles`, `Tile` (flip, cycle), faces, slides, labels, counts | Windows Phone 8 | Windows 8 |
 | **Buttons** | `Button`, `RingButton` | Windows Phone 8 | Windows 8 |
 | **Forms** | `CheckBox`, `RadioButton`, `Toggle`, `TextBox` | Windows Phone 8 and its toolkit | Windows 8 |
@@ -59,6 +60,44 @@ For a page from the server, set it before the first paint too, in the
 	})(document.documentElement);
 </script>
 ```
+
+### Navigation: a pivot or a sidebar
+
+An app with several sections can show them as a pivot (the strip of names
+across the top) or as a sidebar (Windows 8's PC settings: a pane down the
+left). Which one is the app's to say, for each kind of device and each way
+up it's held; whatever's left out is a pivot:
+
+```ts
+startMetro({
+	navigation: {
+		phone: "pivot",
+		tablet: { portrait: "pivot", landscape: "sidebar" },
+		desktop: "sidebar",
+	},
+});
+```
+
+The kind of device is `"phone"` (the phone's form factor), `"tablet"` (a
+finger's the main pointer) or `"desktop"`; the way up, `"portrait"` or
+`"landscape"`. One style alone (`navigation: "sidebar"`) is for everything.
+Each section's page draws `<Sections>`, which follows the rules as the
+window turns or changes size:
+
+```tsx
+<Page kind="pivot">
+	<Sections title="mail" items={SECTIONS} active="/inbox">
+		…the inbox…
+	</Sections>
+</Page>
+```
+
+The person using the app can choose otherwise with `setNavigation(rules)`
+(remembered on the device; `null` goes back to the app's). `navigation()`,
+`idiom()` and `orientation()` say where things stand, and `<html>` carries
+them as `data-m-navigation`, `data-m-idiom` and `data-m-orientation`; an
+`m-navigation` event goes out when the style changes. The sidebar follows
+the theme (dark or light) and the accent.
 
 ## Status
 

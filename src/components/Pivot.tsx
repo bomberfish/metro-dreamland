@@ -14,15 +14,18 @@ import { classes, rest, transparent } from "./props";
 //
 // That's the phone's. On a tablet or desktop (the form factor: see
 // formfactor.ts) there's room for more, and the strip does what WinJS's
-// Pivot did there (winjs/winjs, Controls/Pivot/_Pivot.ts: "static" and
-// "overflow" modes). If every header fits, they stand in their fixed order,
-// the current one lit, like tabs, and don't move as the page changes: the
-// one picked lights up, the last one dims, and only the content slides. If
-// they don't fit, it's the phone's strip, starting at the current one; and
-// for a mouse there are two buttons at its ends (shown while the pointer is
-// over the strip) to step to the section before or after. settlePivots()
-// (./motion/pivot.ts) works out which, as a page arrives and as the window
-// changes; each header knows its place in the order (data-m-i) for it.
+// Pivot did there (winjs/winjs, Controls/Pivot/_Pivot.ts, its
+// "static" mode): the headers stand in their fixed order, the current one
+// lit, like tabs, and don't move as the page changes: the one picked lights
+// up, the last one dims, and only the content slides. If they don't all
+// fit, the strip ends at the window's edge and scrolls sideways to the
+// rest, as a strip of tabs does: for a mouse there's a button at each end
+// (shown while the pointer is over the strip, where there's more that way)
+// that scrolls it along. settlePivots() (./motion/pivot.ts) works out
+// which, as a page arrives and as the window changes; each header knows
+// its place in the order (data-m-i) for it.
+//
+// For a sidebar instead, as Windows 8's PC settings had, see <NavPane>.
 export interface PivotItem {
 	href: string;
 	label: string;
@@ -67,20 +70,22 @@ export function Pivot(
 					{item.label}
 				</Link>
 			))}
-			{/* (WinJS's: for a mouse, when the headers don't all fit) */}
+			{/* (for a mouse, when the headers don't all fit: they scroll the
+			    strip. Out of the tab order: tabbing along the headers brings
+			    each into sight anyway.) */}
 			<button
 				type="button"
 				class="m-pivot-nav m-pivot-prev"
-				aria-label="previous section"
+				aria-label="show earlier sections"
 				tabindex="-1"
-				data-m-pivot-step="-1"
+				data-m-pivot-scroll="-1"
 			/>
 			<button
 				type="button"
 				class="m-pivot-nav m-pivot-next"
-				aria-label="next section"
+				aria-label="show later sections"
 				tabindex="-1"
-				data-m-pivot-step="1"
+				data-m-pivot-scroll="1"
 			/>
 		</nav>
 	);

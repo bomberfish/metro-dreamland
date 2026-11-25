@@ -3,6 +3,8 @@
 // timings, and the two or three things all of it needs to ask (is anything
 // to move at all; which element is the page).
 
+import type { NavigationRules } from "./navstyle";
+
 /** True where there's no document (the server's render): nothing here runs. */
 export const SSR: boolean =
 	(import.meta as { env?: { SSR?: boolean } }).env?.SSR ??
@@ -39,6 +41,12 @@ export interface MetroConfig {
 	 */
 	formFactor: "auto" | "phone" | "desktop";
 	/**
+	 * How the app's sections are got to, a pivot or a sidebar, on each kind
+	 * of device and each way up (./navstyle.ts), until the person using it
+	 * chooses (setNavigation). Whatever's left out is a pivot.
+	 */
+	navigation: NavigationRules;
+	/**
 	 * The paths of the pages that are faces of one pivot, besides the ones a
 	 * <Pivot> has said it leads to: for the back button, to which they're
 	 * one place (it matters after a reload on a page inside one of them,
@@ -55,6 +63,7 @@ export const config: MetroConfig = {
 	reveal: ".tile",
 	material: "flat",
 	formFactor: "auto",
+	navigation: "pivot",
 	pivots: [],
 };
 
@@ -62,6 +71,9 @@ export const config: MetroConfig = {
 export function configure(options: Partial<MetroConfig> = {}) {
 	Object.assign(config, options);
 	for (const p of config.pivots) pivotPaths.add(norm(p));
+	// (the navigation's outcome, again, if it's already being kept up)
+	if (!SSR && "navigation" in options)
+		dispatchEvent(new Event("m-configure"));
 }
 
 /** The pages known to be faces of a pivot (see MetroConfig.pivots). */

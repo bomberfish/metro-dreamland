@@ -240,6 +240,8 @@ export function pivotOut(
 		page.querySelectorAll<HTMLElement>("[data-m-content]")
 	);
 	if (!strip || !contents.length) return swingOut(page, dir < 0);
+	if (strip.getAttribute("data-m-pivot") === "pane")
+		return paneOut(page, strip, contents, source, to);
 	const headers = Array.from(strip.children).filter(
 		(el) => !el.matches(".m-pivot-nav")
 	) as HTMLElement[];
@@ -364,6 +366,7 @@ export function pivotIn(page: Element, dir: 1 | -1) {
 	const stayed = stays;
 	stays = null;
 	if (!strip || !contents.length) return swingIn(page, dir < 0);
+	if (strip.getAttribute("data-m-pivot") === "pane") return paneIn(contents);
 	// (in the mode that suits it: ./pivot.ts)
 	settlePivots(page);
 	const from = (px: number): Keyframe[] => [
@@ -411,4 +414,81 @@ export function pivotIn(page: Element, dir: 1 | -1) {
 			})
 		),
 	]);
+}
+
+// A sidebar's change of section (<NavPane>, data-m-pivot="pane"): the pane
+// stays where it is, and only the light moves, from the section that was
+// open to the one picked (the fill and the type, together); the content
+// goes and the next comes as Windows 8's did, WinJS's exitContent (a fade,
+// 117ms, linear) and enterContent (up from 28px below over 550ms on
+// cubic-bezier(0.1, 0.9, 0.2, 1), fading in over the first 170ms of it):
+// winjs/winjs, src/js/WinJS/Animations.js.
+const CONTENT_OUT_MS = 117;
+const CONTENT_IN_MS = 550;
+const CONTENT_FADE_MS = 170;
+const CONTENT_EASE = "cubic-bezier(0.1, 0.9, 0.2, 1)";
+
+function paneOut(
+	page: Element,
+	pane: HTMLElement,
+	contents: HTMLElement[],
+	source?: Element | null,
+	to?: string
+) {
+	takePull(); // (a swipe across a sidebar's page doesn't drag it)
+	const items = Array.from(
+		pane.querySelectorAll<HTMLElement>("[data-m-i]")
+	);
+	const lead = items.find((el) => el.hasAttribute("aria-current"));
+	const target = items.find((el) =>
+		el === lead
+			? false
+			: source && pane.contains(source)
+				? el.contains(source)
+				: to != null &&
+					el instanceof HTMLAnchorElement &&
+					norm(el.pathname) === to
+	);
+	const moves: (Promise<void> | false | null | undefined)[] = [];
+	if (lead && target) {
+		stays = new Set(Array.from(pane.children).map(headerKey));
+		const lit = getComputedStyle(lead);
+		const unlit = getComputedStyle(target);
+		const tone = (el: Element, style: CSSStyleDeclaration) =>
+			play(
+				el,
+				[
+					{},
+					{ color: style.color, backgroundColor: style.backgroundColor },
+				],
+				{ duration: CONTENT_OUT_MS, easing: "linear" }
+			);
+		moves.push(tone(target, lit), tone(lead, unlit));
+		page.setAttribute("data-m-stay", "");
+	}
+	return all([
+		...moves,
+		...contents.map((content) =>
+			play(content, [{ opacity: 1 }, { opacity: 0 }], {
+				duration: CONTENT_OUT_MS,
+				easing: "linear",
+			})
+		),
+	]);
+}
+
+function paneIn(contents: HTMLElement[]) {
+	return all(
+		contents.flatMap((content) => [
+			play(
+				content,
+				[{ transform: "translate3d(0, 28px, 0)" }, { transform: "none" }],
+				{ duration: CONTENT_IN_MS, easing: CONTENT_EASE }
+			),
+			play(content, [{ opacity: 0 }, { opacity: 1 }], {
+				duration: CONTENT_FADE_MS,
+				easing: CONTENT_EASE,
+			}),
+		])
+	);
 }

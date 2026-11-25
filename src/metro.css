@@ -282,75 +282,265 @@ html.m-swapping [data-m-page]:not([data-m-stay]) {
 	color: hsla(var(--supertext-hsl), 0.72);
 }
 
-/* WinJS's buttons, for a mouse on a tablet or desktop, when the headers
-   don't all fit (./motion/pivot.ts): a block 20 x 36 at each end of the
-   strip, 40% of the text's colour, the chevron in the page's, there while
-   the pointer is over the strip (winjs/winjs, styles-pivot.less,
-   .win-pivot-navbutton). */
-.page-header .pivot:has(.m-pivot-nav) {
+/* A strip whose headers don't all fit, on a tablet or desktop
+   (./motion/pivot.ts, data-m-scroll): it ends at the window's edge and
+   scrolls sideways to the rest, as a strip of tabs does. No scrollbar: a
+   trackpad or a finger scrolls it, tabbing to a header brings it into
+   sight, and a mouse has the buttons below. (overscroll contained: a
+   swipe that reaches its end isn't the browser's "back".) */
+:where(:root:not([data-m-form-factor="phone"])) .page-header .pivot[data-m-scroll] {
 	position: relative;
+	box-sizing: border-box;
+	max-width: var(--m-pivot-end, 100%);
+	overflow-x: auto;
+	overflow-y: hidden;
+	overscroll-behavior-x: contain;
+	scrollbar-width: none;
+	/* (no glow room at the sides: it's what's in sight that's scrolled, so
+	   it starts where the page's text does and ends at the window's edge,
+	   and the buttons sit against those) */
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: 0 !important;
 }
 
-.page-header .pivot .m-pivot-nav {
-	position: absolute;
-	/* (level with the middle of the headers' line: in their size) */
-	top: calc(var(--glow-room) + 0.475em);
-	z-index: 1;
+:where(:root:not([data-m-form-factor="phone"]))
+	.page-header
+	.pivot[data-m-scroll]::-webkit-scrollbar {
 	display: none;
-	width: 20px;
-	height: 36px;
-	margin: -18px 0 0;
-	font-size: inherit;
-	padding: 0;
-	border: 0;
-	background: hsla(var(--supertext-hsl), 0.4);
-	color: hsla(var(--core-hsl), 0.8);
-	cursor: pointer;
-	opacity: 0;
+}
+
+/* (the current one too takes the wheel and the trackpad, to scroll) */
+:where(:root:not([data-m-form-factor="phone"])) .page-header .pivot[data-m-scroll] > h1 {
 	pointer-events: auto;
-	transition: opacity 0.167s linear;
 }
 
-.page-header .pivot .m-pivot-nav::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	margin: auto;
-	width: 8px;
-	height: 14px;
-	background: currentColor;
-	-webkit-mask: var(--chevron) center / contain no-repeat;
-	mask: var(--chevron) center / contain no-repeat;
-}
-
-.page-header .pivot .m-pivot-prev {
-	left: var(--glow-room);
-	--chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='M7 1 1 7l6 6' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E");
-}
-
-.page-header .pivot .m-pivot-next {
-	/* (at the edge of what's in sight of the strip: ./motion/pivot.ts) */
-	left: calc(var(--m-pivot-end, 100%) - 20px);
-	--chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='m1 1 6 6-6 6' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E");
-}
-
-.page-header .pivot .m-pivot-nav:hover {
-	color: hsla(var(--core-hsl), 0.6);
+/* Its buttons, for a mouse: a block 20 x 36 at each end of what's in
+   sight, 40% of the text's colour with the chevron in the page's, as
+   WinJS's pivot drew its own (winjs/winjs, styles-pivot.less,
+   .win-pivot-navbutton). There while the pointer's over the header, at
+   whichever end has more beyond it; each scrolls the strip along most of
+   its width. They're stuck to the ends of the scroller (sticky), over the
+   headers, taking no room of their own. */
+.page-header .pivot .m-pivot-nav {
+	display: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
 	:where(:root:not([data-m-form-factor="phone"]))
 		.page-header
-		.pivot:not([data-m-static])
+		.pivot[data-m-scroll]
 		.m-pivot-nav {
 		display: block;
+		position: sticky;
+		z-index: 1;
+		flex: none;
+		align-self: center;
+		width: 20px;
+		height: 36px;
+		padding: 0;
+		border: 0;
+		font-size: inherit;
+		background: hsla(var(--supertext-hsl), 0.4);
+		color: hsla(var(--core-hsl), 0.8);
+		cursor: pointer;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.167s linear;
+	}
+
+	:where(:root:not([data-m-form-factor="phone"]))
+		.page-header
+		.pivot[data-m-scroll]
+		.m-pivot-nav::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		margin: auto;
+		width: 8px;
+		height: 14px;
+		background: currentColor;
+		-webkit-mask: var(--chevron) center / contain no-repeat;
+		mask: var(--chevron) center / contain no-repeat;
+	}
+
+	/* (first and last, whatever the headers' order; each gives back the
+	   room it would take, and the gap beside it) */
+	:where(:root:not([data-m-form-factor="phone"]))
+		.page-header
+		.pivot[data-m-scroll]
+		.m-pivot-prev {
+		order: -1;
+		left: 0;
+		margin-right: calc(-20px - 0.3em);
+		--chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='M7 1 1 7l6 6' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E");
+	}
+
+	:where(:root:not([data-m-form-factor="phone"]))
+		.page-header
+		.pivot[data-m-scroll]
+		.m-pivot-next {
+		order: 1;
+		right: 0;
+		margin-left: calc(-20px - 0.3em);
+		--chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='m1 1 6 6-6 6' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E");
 	}
 
 	:where(:root:not([data-m-form-factor="phone"]))
 		.page-header:hover
-		.pivot:not([data-m-static])
-		.m-pivot-nav {
+		.pivot[data-m-scroll][data-m-before]
+		.m-pivot-prev,
+	:where(:root:not([data-m-form-factor="phone"]))
+		.page-header:hover
+		.pivot[data-m-scroll][data-m-after]
+		.m-pivot-next {
 		opacity: 1;
+		pointer-events: auto;
+	}
+
+	:where(:root:not([data-m-form-factor="phone"]))
+		.page-header
+		.pivot[data-m-scroll]
+		.m-pivot-nav:hover {
+		color: hsla(var(--core-hsl), 0.6);
+	}
+}
+
+/* ==========================================================================
+   Sections: <Sections>, a pivot or a sidebar (./motion/navstyle.ts)
+
+   In pivot mode, the app's title in capitals over the strip, as every
+   phone app's page had it (PhoneTextNormalStyle, semibold).
+   ========================================================================== */
+
+.m-sections-title {
+	margin: 0 0 0.2rem;
+	font-size: 1rem;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+	text-transform: uppercase;
+}
+
+/* ---- The sidebar: <NavPane> ----
+   Windows 8's PC settings: a pane down the left in the theme's chrome
+   (#f4f4f4 in the light theme, from a screenshot of it; the dark one's a
+   grey as far off black), the app's title at the top in the accent (the
+   Header style: 56px, light, its baseline 100px down), the sections under
+   it (the Subheader style: 26.667px, semilight) in rows 53px tall, the
+   open one filled with the accent from edge to edge, its name in white.
+   The content's beside it and scrolls on its own; the pane stays. */
+.m-navpane-layout {
+	--m-pane: #1d1d1d;
+	--m-pane-hover: rgba(255, 255, 255, 0.07);
+	--m-pane-width: clamp(16rem, 34vw, 500px);
+	--m-pane-inset: clamp(1.5rem, 6.5vw, 97px);
+	display: grid;
+	grid-template-columns: var(--m-pane-width) minmax(0, 1fr);
+	min-height: 100dvh;
+}
+
+:where([data-m-theme="light"]) .m-navpane-layout {
+	--m-pane: #f4f4f4;
+	--m-pane-hover: rgba(0, 0, 0, 0.06);
+}
+
+.m-navpane {
+	position: sticky;
+	top: 0;
+	height: 100dvh;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: thin;
+	box-sizing: border-box;
+	/* (clear of the app bar, where there's one along the foot) */
+	padding: 0 0 calc(var(--m-appbar-h, 0px) + 1.5rem);
+	background: var(--m-pane);
+	color: var(--m-fg);
+}
+
+.m-navpane-title {
+	/* (the baseline 100px down: the line's 1.1 of 56px, the baseline
+	   about 0.86em into it) */
+	margin: 0 0 13px;
+	/* (a long name goes onto a second line, rather than losing its end) */
+	padding: calc(100px - 0.86em - 0.05em) 1rem 0 var(--m-pane-inset);
+	font-family: var(--font-display);
+	font-size: 56px;
+	font-weight: 300;
+	line-height: 1.1;
+	letter-spacing: -0.01em;
+	color: var(--accent-text, var(--accent));
+	overflow-wrap: break-word;
+}
+
+.m-navpane-item {
+	display: block;
+	padding: 0 var(--m-pane-inset);
+	font-size: 26.667px;
+	font-weight: 350;
+	line-height: 53px;
+	color: inherit;
+	text-decoration: none !important;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.m-navpane-item:hover {
+	background: var(--m-pane-hover);
+}
+
+.m-navpane-item[aria-current] {
+	background: var(--accent-fill, var(--accent));
+	color: #fff;
+}
+
+.m-navpane-item:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: -4px;
+}
+
+.m-navpane-content {
+	min-width: 0;
+}
+
+/* (on a phone there's no room beside it: the pane goes above, a list) */
+:where([data-m-form-factor="phone"]) .m-navpane-layout {
+	grid-template-columns: minmax(0, 1fr);
+	min-height: 0;
+}
+
+:where([data-m-form-factor="phone"]) .m-navpane {
+	position: static;
+	height: auto;
+	padding-bottom: 1rem;
+}
+
+:where([data-m-form-factor="phone"]) .m-navpane-title {
+	padding-top: 1.5rem;
+	font-size: 2.6rem;
+}
+
+:where([data-m-form-factor="phone"]) .m-navpane-item {
+	font-size: 1.3333rem;
+	line-height: 2.6rem;
+}
+
+/* (acrylic, as the app bar is: frosted, a little of what's behind it
+   showing through the pane's colour) */
+[data-m-material="acrylic"] .m-navpane {
+	background:
+		var(--grain-image),
+		color-mix(in srgb, var(--m-pane) 72%, transparent);
+	-webkit-backdrop-filter: blur(1.875rem) saturate(1.25);
+	backdrop-filter: blur(1.875rem) saturate(1.25);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+	[data-m-material="acrylic"] .m-navpane {
+		background: var(--m-pane);
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
 	}
 }
 

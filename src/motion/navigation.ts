@@ -16,7 +16,8 @@ import {
 } from "./core";
 import { material, startMaterial } from "./material";
 import { startFormFactor } from "./formfactor";
-import { settlePivots, stepOf } from "./pivot";
+import { startNavigation } from "./navstyle";
+import { scrollPivot, settlePivots, stepOf } from "./pivot";
 import { bindPano, pano, panLinks, unbindPano } from "./panorama";
 import { startReveal } from "./reveal";
 import { startToolTips } from "../components/ToolTip";
@@ -497,9 +498,12 @@ export function startMetro(options?: Partial<MetroConfig>) {
 	window.__metro = true;
 	startMaterial(config.material);
 	startFormFactor(config.formFactor);
+	startNavigation();
 	startToolTips();
 	// a pivot's strip, in the mode that suits it (./pivot.ts), whenever
-	// the window or the form factor changes; and its buttons, for a mouse
+	// the window or the form factor changes; and the buttons at the ends of
+	// a scrolling one, for a mouse, which scroll it to the sections out of
+	// sight (picking one is still a click on it)
 	let settling = 0;
 	const resettle = () => {
 		cancelAnimationFrame(settling);
@@ -508,12 +512,13 @@ export function startMetro(options?: Partial<MetroConfig>) {
 	addEventListener("resize", resettle);
 	addEventListener("m-form-factor", resettle);
 	addEventListener("click", (e) => {
-		const step = (e.target as Element | null)?.closest?.<HTMLElement>(
-			"[data-m-pivot-step]"
+		const button = (e.target as Element | null)?.closest?.<HTMLElement>(
+			"[data-m-pivot-scroll]"
 		);
-		if (!step) return;
+		const strip = button?.closest<HTMLElement>("[data-m-pivot]");
+		if (!button || !strip) return;
 		e.preventDefault();
-		turnPivot(Number(step.dataset.mPivotStep) < 0 ? -1 : 1);
+		scrollPivot(strip, Number(button.dataset.mPivotScroll) < 0 ? -1 : 1);
 	});
 	// (the panorama's own links to its sections come through here)
 	panLinks.section = sectionOf;

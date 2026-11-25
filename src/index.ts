@@ -12,7 +12,7 @@
 //                 it, is the rest of an app's colours and type, from the
 //                 phone's theme, for an app that hasn't its own.
 //   components/   the markup, as dreamland components:
-//                   pages      <Page>, <Link>, <Pivot>, <PageHeader>,
+//                   pages      <Page>, <Link>, <Pivot>, <Sections>, <NavPane>, <PageHeader>,
 //                              <Panorama> and its parts
 //                   tiles      <Tiles>, <Tile> and its parts
 //                   controls   <Button>, <RingButton>, <CheckBox>,
@@ -118,6 +118,23 @@ export {
 	Tiles,
 } from "./components/Tile";
 export { PageHeader, Pivot, type PivotItem } from "./components/Pivot";
+export { NavPane } from "./components/NavPane";
+export { Sections } from "./components/Sections";
+export {
+	type Idiom,
+	idiom,
+	isNavigationRules,
+	navigation,
+	navigationChosen,
+	type NavigationRule,
+	type NavigationRules,
+	navigationRules,
+	type NavigationStyle,
+	type Orientation,
+	orientation,
+	resolveNavigation,
+	setNavigation,
+} from "./motion/navstyle";
 export {
 	Panorama,
 	PanoramaHeading,
