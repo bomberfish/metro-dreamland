@@ -7,7 +7,10 @@ import { classes, rest, transparent } from "./props";
 // of its kind, dimmed and running off the edge of the screen. Picking one
 // slides it to the front (the "pivot" transition, motion/transitions.ts).
 // `items` are all of them in their fixed order and `active` the href of the
-// one this page is: the strip starts there and goes round.
+// one this page is: the strip starts there and goes round. The ones off the
+// edge are a drag away: a finger scrolls the strip sideways to them (a drag
+// on the strip is the strip's; a swipe across the content still turns the
+// page), and each new page's strip starts from its own header again.
 //
 // The page it's on is a <Page kind="pivot">, and what slides in under the
 // strip is marked data-m-content.

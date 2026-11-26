@@ -1,6 +1,8 @@
 import { isPhone, SSR } from "./core";
 
-// A pivot's strip of headers on a tablet or desktop.
+// A pivot's strip of headers.
+//
+// On a tablet or desktop:
 //
 //   static     every header fits: they stand in their fixed order, the
 //              current one lit, and don't move from page to page, as
@@ -16,9 +18,12 @@ import { isPhone, SSR } from "./core";
 //
 // Both are data-m-static: changing section, only the light moves (see
 // pivotOut, ./transitions.ts). On the phone it's the phone's strip, the
-// current one first and the rest going round after it. Each header says
-// where it comes in the order (data-m-i); this puts them in the order for
-// the mode.
+// current one first and the rest going round after it, off the edge of the
+// screen; where they don't all fit, a finger scrolls it sideways to the
+// rest (data-m-scroll too, but not data-m-static). It starts from the
+// current one each page, since that's always first. Each header says where
+// it comes in the order (data-m-i); this puts them in the order for the
+// mode.
 //
 // A sidebar (<NavPane>, data-m-pivot="pane") is a static strip too, but one
 // that lays itself out: it's left as it is.
@@ -62,26 +67,24 @@ function settle(strip: HTMLElement) {
 					((indexOf(a) - at + n) % n) - ((indexOf(b) - at + n) % n)
 			)
 		: [...headers].sort((a, b) => indexOf(a) - indexOf(b));
-	if (order.some((el, i) => headers[i] !== el)) {
+	const moved = order.some((el, i) => headers[i] !== el);
+	if (moved) {
 		for (const el of order) strip.append(el);
 		// (the buttons after the headers, as they were)
 		for (const b of strip.querySelectorAll(".m-pivot-nav")) strip.append(b);
 	}
 	strip.toggleAttribute("data-m-static", !phone);
-	// the room: from where the headers start to the window's right edge
-	const end = document.documentElement.clientWidth - 12;
-	const first = headers.reduce((a, b) => (indexOf(a) < indexOf(b) ? a : b));
-	let fits = true;
-	if (!phone) {
-		// (the headers' own widths, and the gaps between them, against it)
-		const gap = parseFloat(getComputedStyle(strip).columnGap) || 0;
-		const width =
-			headers.reduce((sum, el) => sum + el.getBoundingClientRect().width, 0) +
-			gap * (n - 1);
-		fits =
-			first.getBoundingClientRect().left + strip.scrollLeft + width <= end;
-	}
-	const scrolls = !phone && !fits;
+	// the room: from where the headers start to the window's right edge (on
+	// the phone, the screen's very edge, which they run off)
+	const end = document.documentElement.clientWidth - (phone ? 0 : 12);
+	// (the headers' own widths, and the gaps between them, against it)
+	const gap = parseFloat(getComputedStyle(strip).columnGap) || 0;
+	const width =
+		headers.reduce((sum, el) => sum + el.getBoundingClientRect().width, 0) +
+		gap * (n - 1);
+	const fits =
+		order[0].getBoundingClientRect().left + strip.scrollLeft + width <= end;
+	const scrolls = !fits;
 	strip.toggleAttribute("data-m-scroll", scrolls);
 	// (measured as it now is: scrolling, the strip starts where its headers
 	// do, and is as wide as the room it has)
@@ -93,17 +96,27 @@ function settle(strip: HTMLElement) {
 		return;
 	}
 	const key = keyOf(strip);
-	if (!watched.has(strip)) {
+	const fresh = !watched.has(strip);
+	if (fresh) {
 		watched.add(strip);
 		strip.addEventListener(
 			"scroll",
 			() => {
-				if (strip.hasAttribute("data-m-scroll"))
+				if (strip.hasAttribute("data-m-scroll") && !isPhone())
 					scrolled.set(key, strip.scrollLeft);
 				edges(strip);
 			},
 			{ passive: true }
 		);
+	}
+	if (phone) {
+		// (the current one's first: a new strip, or one that's just come
+		// round to another, starts at the start; one that's been scrolled is
+		// otherwise left where the finger put it, through the window
+		// changing size as the browser's bars come and go)
+		if (fresh || moved) strip.scrollLeft = 0;
+		edges(strip);
+		return;
 	}
 	// where it was, then far enough that the current one's in sight
 	// (clear of the buttons at the ends)

@@ -282,13 +282,15 @@ html.m-swapping [data-m-page]:not([data-m-stay]) {
 	color: hsla(var(--supertext-hsl), 0.72);
 }
 
-/* A strip whose headers don't all fit, on a tablet or desktop
-   (./motion/pivot.ts, data-m-scroll): it ends at the window's edge and
-   scrolls sideways to the rest, as a strip of tabs does. No scrollbar: a
-   trackpad or a finger scrolls it, tabbing to a header brings it into
-   sight, and a mouse has the buttons below. (overscroll contained: a
-   swipe that reaches its end isn't the browser's "back".) */
-:where(:root:not([data-m-form-factor="phone"])) .page-header .pivot[data-m-scroll] {
+/* A strip whose headers don't all fit (./motion/pivot.ts, data-m-scroll):
+   it ends at the window's edge and scrolls sideways to the rest, as a strip
+   of tabs does. No scrollbar: a trackpad or a finger scrolls it, tabbing
+   to a header brings it into sight, and a mouse has the buttons below.
+   (overscroll contained: a swipe that reaches its end isn't the browser's
+   "back".) On the phone it's the phone's strip, current one first, and a
+   finger drags it along to the ones off the edge; a drag on it is the
+   strip's, not a swipe to the next section (./motion/swipe.ts). */
+.page-header .pivot[data-m-scroll] {
 	position: relative;
 	box-sizing: border-box;
 	max-width: var(--m-pivot-end, 100%);
@@ -296,23 +298,27 @@ html.m-swapping [data-m-page]:not([data-m-stay]) {
 	overflow-y: hidden;
 	overscroll-behavior-x: contain;
 	scrollbar-width: none;
-	/* (no glow room at the sides: it's what's in sight that's scrolled, so
-	   it starts where the page's text does and ends at the window's edge,
-	   and the buttons sit against those) */
-	padding-left: 0;
-	padding-right: 0;
-	margin-left: 0 !important;
 }
 
-:where(:root:not([data-m-form-factor="phone"]))
-	.page-header
-	.pivot[data-m-scroll]::-webkit-scrollbar {
+.page-header .pivot[data-m-scroll]::-webkit-scrollbar {
 	display: none;
 }
 
-/* (the current one too takes the wheel and the trackpad, to scroll) */
-:where(:root:not([data-m-form-factor="phone"])) .page-header .pivot[data-m-scroll] > h1 {
+/* (the current one too takes the wheel, the trackpad and the finger, to
+   scroll) */
+.page-header .pivot[data-m-scroll] > h1 {
 	pointer-events: auto;
+}
+
+/* (on a tablet or desktop, no glow room at the sides: it's what's in sight
+   that's scrolled, so it starts where the page's text does and ends at the
+   window's edge, and the buttons sit against those. The phone's keeps its
+   room to the left, which hangs off the screen: what's scrolled past goes
+   off the screen's edge, as it went round off it before.) */
+:where(:root:not([data-m-form-factor="phone"])) .page-header .pivot[data-m-scroll] {
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: 0 !important;
 }
 
 /* Its buttons, for a mouse: a block 20 x 36 at each end of what's in

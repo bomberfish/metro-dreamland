@@ -12,7 +12,7 @@ it as a git submodule. Everything it has is shown off, and can be tried, in
 
 | | | On a phone | On a tablet or desktop |
 |---|---|---|---|
-| **Pages** | `Page`, `PageHeader`, `Pivot`, `Panorama`, `Link` | Windows Phone 8 | Windows 8; the pivot's headers as WinJS's Pivot had them, scrolling like tabs when they don't fit |
+| **Pages** | `Page`, `PageHeader`, `Pivot`, `Panorama`, `Link` | Windows Phone 8; the pivot's strip drags sideways to the headers off the edge | Windows 8; the pivot's headers as WinJS's Pivot had them, scrolling like tabs when they don't fit |
 | **Sections** | `Sections`, `NavPane` (a sidebar) | the pivot | the pivot, or Windows 8's PC settings sidebar: the app's rules say which (below) |
 | **Tiles** | `Tiles`, `Tile` (flip, cycle), faces, slides, labels, counts | Windows Phone 8 | Windows 8 |
 | **Buttons** | `Button`, `RingButton` | Windows Phone 8 | Windows 8 |

@@ -12,6 +12,7 @@ import {
 	norm,
 	onScreen,
 	play,
+	still,
 } from "./core";
 import { takePull } from "./swipe";
 
@@ -261,6 +262,16 @@ export function pivotOut(
 	);
 	const target = at >= 0 ? headers[at] : null;
 	const moves: (Promise<void> | false | null | undefined)[] = [];
+	// (a phone's strip that's been scrolled sideways, ./pivot.ts: it lets go
+	// of the scrolling for its way out, drawn where it had been scrolled to
+	// and moving from there, off the screen's edges as it would unscrolled.
+	// The next page's strip starts from the start.)
+	let scrolled = 0;
+	if (!still_ && !still() && strip.hasAttribute("data-m-scroll")) {
+		scrolled = strip.scrollLeft;
+		strip.removeAttribute("data-m-scroll");
+	}
+	const from = `translate3d(${-scrolled}px, 0, 0)`;
 	if (target && lead && still_) {
 		// (a static strip: nothing moves; the one picked lights up, the one
 		// that was lit dims, and the next page's strip is the same)
@@ -297,10 +308,7 @@ export function pivotOut(
 		moves.push(
 			play(
 				strip,
-				[
-					{ transform: "translate3d(0, 0, 0)" },
-					{ transform: `translate3d(${shift}px, 0, 0)` },
-				],
+				[{ transform: from }, { transform: `translate3d(${shift}px, 0, 0)` }],
 				{ duration: OUT_MS + 80, easing: EASE_IN_OUT }
 			),
 			...going.map((el) =>
@@ -321,8 +329,8 @@ export function pivotOut(
 			play(
 				strip,
 				[
-					{ transform: "translate3d(0, 0, 0)" },
-					{ transform: `translate3d(${-dir * 140}px, 0, 0)` },
+					{ transform: from },
+					{ transform: `translate3d(${-scrolled - dir * 140}px, 0, 0)` },
 				],
 				{ duration: OUT_MS, easing: EASE_IN_OUT }
 			),
